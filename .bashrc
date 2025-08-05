@@ -355,6 +355,7 @@ alias ms='miniserve . -qu'
 alias doom='~/.config/emacs/bin/doom'
 alias y='yazi'
 alias yoink='open -a yoink'
+alias glow='glow -w 150'
 
 # ===
 # === Outside sources
