@@ -54,7 +54,8 @@ searchToPATH() {
     # [ -f /tmp/paths.sh ] && . /tmp/paths.sh && rm /tmp/paths.sh
     [ -z "$(ls "$1")" ] && return
     for item in "$1"/*; do
-        if [ -d "$item"/bin ] && echo "$item" | grep -qv conda; then
+        # if [ -d "$item"/bin ] && echo "$item" | grep -qv conda; then
+        if [ -d "$item"/bin ]; then
             PATH="${item}"/bin:"$PATH"
         fi
     done
@@ -73,10 +74,10 @@ if [ -d "$HOMEBREW_PREFIX" ]; then
     addToPATH "$HOMEBREW_PREFIX"/bin
 fi
 
-# ===
-# === For conda apps.
-# ===
-[ -n "$MYCONDA" ] && [ -d "$MYCONDA"/bin ] && addToPATH "$MYCONDA"/bin
+# # ===
+# # === For conda apps.
+# # ===
+# [ -n "$MYCONDA" ] && [ -d "$MYCONDA"/bin ] && addToPATH "$MYCONDA"/bin
 
 # ===
 # === No sequences, for system default.
@@ -171,40 +172,40 @@ ontmux
 # }
 
 
-# ==========================
-# === Boot conda if need ===
-# ==========================
-VOCALOCK_CONDA="$VOCALOCK"/conda
-onconda() {
-    [ ! -e "$VOCALOCK_CONDA" ] && return
-
-    local myconda="$MYCONDA"
-    if [ ! -d "$myconda" ]; then
-        if [ -d "$VOCAL"/anaconda3 ]; then
-            myconda="$VOCAL"/anaconda3
-        elif [ -d "$VOCAL"/miniconda3 ]; then
-            myconda="$VOCAL"/miniconda3
-        fi
-    fi
-    echo "Current conda value: \"${myconda}\"" > "$VOCALOCK_CONDA"
-    [ -z "$myconda" ] && return
-
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$("$myconda"/bin/conda "shell.$(basename $SHELL)" hook 2> /dev/null)"
-    if [ "$?" -eq 0 ]; then
-        eval "$__conda_setup"
-    else
-        if [ -f "$myconda"/etc/profile.d/conda.sh ]; then
-            . "$myconda"/etc/profile.d/conda.sh
-        else
-            addToPATH "$myconda"/bin
-        fi
-    fi
-    unset __conda_setup
-    # <<< conda initialize <<<
-}
-onconda
+# # ==========================
+# # === Boot conda if need ===
+# # ==========================
+# VOCALOCK_CONDA="$VOCALOCK"/conda
+# onconda() {
+#     [ ! -e "$VOCALOCK_CONDA" ] && return
+#
+#     local myconda="$MYCONDA"
+#     if [ ! -d "$myconda" ]; then
+#         if [ -d "$VOCAL"/anaconda3 ]; then
+#             myconda="$VOCAL"/anaconda3
+#         elif [ -d "$VOCAL"/miniconda3 ]; then
+#             myconda="$VOCAL"/miniconda3
+#         fi
+#     fi
+#     echo "Current conda value: \"${myconda}\"" > "$VOCALOCK_CONDA"
+#     [ -z "$myconda" ] && return
+#
+#     # >>> conda initialize >>>
+#     # !! Contents within this block are managed by 'conda init' !!
+#     __conda_setup="$("$myconda"/bin/conda "shell.$(basename $SHELL)" hook 2> /dev/null)"
+#     if [ "$?" -eq 0 ]; then
+#         eval "$__conda_setup"
+#     else
+#         if [ -f "$myconda"/etc/profile.d/conda.sh ]; then
+#             . "$myconda"/etc/profile.d/conda.sh
+#         else
+#             addToPATH "$myconda"/bin
+#         fi
+#     fi
+#     unset __conda_setup
+#     # <<< conda initialize <<<
+# }
+# onconda
 
 
 # ==============
@@ -231,7 +232,7 @@ EDITOR="$(command -v nvim &> /dev/null && echo nvim || echo vim)"
 # soon https://github.com/pypa/pip/issues/7883
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 export STARSHIP_LOG=error
-export CONDA_CHANGEPS1=no
+# export CONDA_CHANGEPS1=no
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore -g !.git'
 export FZF_COMPLETION_TRIGGER=\\  # Press single `\<Tab>` to trigger. Double backslash for escaping.
 export GO111MODULE=on
@@ -280,9 +281,9 @@ toggle() {
 totmux() {
     toggle "$VOCALOCK_TMUX" ontmux
 }
-toconda() {
-    toggle "$VOCALOCK_CONDA" onconda
-}
+# toconda() {
+#     toggle "$VOCALOCK_CONDA" onconda
+# }
 P() {
     http_proxy=127.0.0.1:7890 https_proxy=127.0.0.1:7890 "$@"
 }
