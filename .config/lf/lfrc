@@ -15,7 +15,7 @@ set incsearch
 set incfilter
 set smartcase
 set sixel true
-set scrolloff 1
+set scrolloff 4
 set mouse
 set period 1
 set info size
