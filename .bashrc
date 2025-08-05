@@ -294,20 +294,20 @@ P() {
 # ===
 # === Aliases
 # ===
+alias ls='ls --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 alias :q=exit
 alias :qa=exit
 # https://github.com/ranger/ranger/wiki/Integration-with-other-programs#changing-directories
 ranger='source ranger ranger'
 alias ranger="$ranger"
 alias ra="$ranger"
-alias ls='ls --color=auto'
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
 alias py=python
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
 alias ipy=ipython
 # Ref: https://github.com/gokcehan/lf/blob/master/etc/lfcd.sh
 lf() {
