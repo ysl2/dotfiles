@@ -247,8 +247,10 @@ if [ -d "$HOMEBREW_PREFIX" ]; then  # To simulate the brew shellenv command.
 fi
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HISTFILE=~/.bash_history
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+# export LANG=en_US.UTF-8
+# export LC_ALL=en_US.UTF-8
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 # For lazygit in MacOS:
 export XDG_CONFIG_HOME=~/.config
 # For Chinese mirrors:
