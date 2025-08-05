@@ -54,6 +54,7 @@ searchToPATH() {
     # [ -f /tmp/paths.sh ] && . /tmp/paths.sh && rm /tmp/paths.sh
     [ -z "$(ls "$1")" ] && return
     for item in "$1"/*; do
+        # if [ -d "$item"/bin ]; then
         if [ -d "$item"/bin ] && echo "$item" | grep -qv conda; then
             PATH="${item}"/bin:"$PATH"
         fi
