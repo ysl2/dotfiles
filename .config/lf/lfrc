@@ -20,6 +20,7 @@ set mouse
 set period 1
 set info size
 set dircounts
+set ignorecase false
 
 # === engines
 source ~/.config/lf/lfrc.opener
