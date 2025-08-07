@@ -313,7 +313,7 @@ alias ipy=ipython
 # Ref: https://github.com/gokcehan/lf/blob/master/etc/lfcd.sh
 lf() {
     # `command` is needed in case `lfcd` is aliased to `lf`
-    cd "$(command \lf -print-last-dir "$@")"
+    \cd "$(command \lf -print-last-dir "$@")"
 }
 alias lD=lazydocker
 alias lg=lazygit
@@ -334,7 +334,7 @@ jo() {
         # output contains current directory
         101)
             JOSHUTO_CWD="$(cat "$OUTPUT_FILE")"
-            cd "$JOSHUTO_CWD"
+            \cd "$JOSHUTO_CWD"
             ;;
         # output selected files
         102)
