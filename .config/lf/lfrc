@@ -307,22 +307,22 @@ map <a-m> bookmark-remove-current-path
 map <a-'> bookmark-remove-not-exist
 map <a-"> bookmark-remove-all
 
-cmd z %{{
-    printf "Zoxide goto: "
-    read ans
-    result="$(zoxide query --exclude $PWD "$ans" | sed 's/\\/\\\\/g;s/"/\\"/g')"
-    lf -remote "send $id cd \"$result\""
-    lf -remote "send clear"
-}}
-cmd zi ${{
-    result="$(zoxide query -i | sed 's/\\/\\\\/g;s/"/\\"/g')"
-    lf -remote "send $id cd \"$result\""
-}}
-cmd on-cd &{{
-    zoxide add "$PWD"
-}}
-map zz z
-map zi zi
+# cmd z %{{
+#     printf "Zoxide goto: "
+#     read ans
+#     result="$(zoxide query --exclude $PWD "$ans" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+#     lf -remote "send $id cd \"$result\""
+#     lf -remote "send clear"
+# }}
+# cmd zi ${{
+#     result="$(zoxide query -i | sed 's/\\/\\\\/g;s/"/\\"/g')"
+#     lf -remote "send $id cd \"$result\""
+# }}
+# cmd on-cd &{{
+#     zoxide add "$PWD"
+# }}
+# map zz z
+# map zi zi
 
 
 # ========================
