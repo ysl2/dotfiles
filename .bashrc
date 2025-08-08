@@ -143,19 +143,17 @@ fi
 VOCALOCK_TMUX="$VOCALOCK"/tmux
 ontmux() {
     [ ! -e "$VOCALOCK_TMUX" ] && return
+    [ -n "$TMUX" ] && return
 
     local mytmux="$MYTMUX"
-    if [ ! -f "$mytmux" ] || [ ! -x "$mytmux" ]; then
-        if command -v tmux &> /dev/null; then
-            mytmux=tmux
-        fi
-    fi
+    [ ! -x "$mytmux" ] && command -v tmux &> /dev/null && mytmux=tmux
     echo "Current tmux value: \"${mytmux}\"" > "$VOCALOCK_TMUX"
     [ -z "$mytmux" ] && return
 
-    [ -z "$TMUX" ] && exec "$mytmux" new-session -A -s main "$SHELL"
+    exec "$mytmux" new-session -A -s main "$SHELL"
 }
 ontmux
+
 
 # =============================
 # === Define addTo function ===
