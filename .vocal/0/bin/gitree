@@ -1,99 +1,148 @@
 #!/usr/bin/env python
+
 import os
 import subprocess
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 
-KWARGS = {'shell': True, 'stdout': subprocess.PIPE}
+# --- Constants for colored output ---
+class Colors:
+    """ANSI color codes for terminal output."""
+
+    BLUE = '\033[34m'
+    CYAN = '\033[36m'
+    RED = '\033[31m'
+    RESET = '\033[0m'
 
 
+# --- Core Data Structure ---
 class Node:
-    def __init__(self, name):
+    """Represents a file or directory in the tree."""
+
+    def __init__(self, name: str, node_type: str = 'blob'):
         self.name = name
-        self.parent = None
-        self.children = []
-
-    def get_full_name(self):
-        if self.parent is None:
-            return self.name
-        return f"{self.parent.get_full_name()}/{self.name}"
+        # 'tree' (directory), 'blob' (file), 'symlink', or 'commit' (submodule)
+        self.node_type = node_type
+        self.children: Dict[str, Node] = {}
 
 
-class PathLinkedList:
-    def __init__(self):
-        self.root = Node("")
+# --- Main Tree Class ---
+class GitTree:
+    """Builds and displays a tree of files from a Git repository."""
 
-    def add_path(self, path):
-        path_parts = path.strip('/').split("/")
-        current_node = self.root
+    def __init__(self, repo_root: Path):
+        self.repo_root = repo_root
+        self.root = Node(repo_root.name, node_type='tree')
 
-        for part in path_parts:
-            if part not in [node.name for node in current_node.children]:
-                new_node = Node(part)
-                new_node.parent = current_node
-                current_node.children.append(new_node)
-                current_node = new_node
-            else:
-                existing_node = [node for node in current_node.children if node.name == part][0]
-                current_node = existing_node
+    def add_path(self, path: str, node_type: str):
+        """Adds a path to the tree using pathlib for path splitting."""
+        current = self.root
+        # Use pathlib's parts attribute for robust path splitting
+        parts = Path(path).parts
 
-    def print_paths(self, node=None, indent=0, last_child=False, prefix=""):
-        if node is None:
-            node = self.root
-            cwds = os.getcwd().strip('/').split('/')
-            for cwd in cwds:
-                def _fn(_node):
-                    for child in _node.children:
-                        if child.name == cwd:
-                            return child
-                node = _fn(node)
-        else:
-            print(prefix + self.get_node_prefix(last_child) + self.get_print_name(node))
+        for part in parts[:-1]:
+            if part not in current.children:
+                current.children[part] = Node(part, node_type='tree')
+            current = current.children[part]
 
-        num_children = len(node.children)
-        for index, child in enumerate(node.children):
-            is_last_child = (index == num_children - 1)
-            child_prefix = prefix + self.get_child_prefix(last_child) if indent > 0 else ""
-            self.print_paths(child, indent + 1, last_child=is_last_child, prefix=child_prefix)
+        final_part = parts[-1]
+        if final_part:
+            current.children[final_part] = Node(final_part, node_type)
 
-    def get_node_prefix(self, last_child):
-        return "└── " if last_child else "├── "
+    def _get_display_name(self, node: Node, full_path: Path) -> str:
+        """
+        Formats the node name with colors and symlink info.
+        NOTE: This version checks the filesystem, which can be slow.
+        """
+        if node.node_type == 'symlink':
+            try:
+                # readlink() gets the symlink's content (the path it points to)
+                target_link = str(full_path.readlink())
+                # Resolve the full path to the target for checking its status
+                target_path = full_path.parent.joinpath(target_link).resolve()
 
-    def get_child_prefix(self, last_child):
-        return "    " if last_child else "│   "
+                if not target_path.exists():
+                    target_str = f'{Colors.RED}{target_link}{Colors.RESET}'
+                elif target_path.is_dir():
+                    target_str = f'{Colors.BLUE}{target_link}{Colors.RESET}/'
+                else:
+                    target_str = target_link
+            except OSError:
+                # This can happen with a broken symlink that can't even be read
+                target_str = f'{Colors.RED}? (broken link){Colors.RESET}'
 
-    def get_print_name(self, node):
-        full_path = node.get_full_name()
-        if os.path.islink(full_path):
-            cmd = f'realpath {full_path}'
-            process = subprocess.Popen(cmd, **KWARGS)
-            output, _ = process.communicate()
-            output = output.decode('utf-8').strip()
-            temp = os.path.relpath(output, os.getcwd())
-            if not os.path.exists(output):
-                output = f'\033[31m{temp}\033[0m'
-            elif os.path.isdir(output):
-                output = f'\033[34m{temp}\033[0m/'
-            else:
-                output = temp
-            return f'\033[36m{node.name}\033[0m -> {output}'
-        if os.path.isdir(full_path):
-            return f'\033[34m{node.name}\033[0m/'
-        return node.name
+            return f'{Colors.CYAN}{node.name}{Colors.RESET} -> {target_str}'
+
+        if node.node_type == 'tree':
+            return f'{Colors.BLUE}{node.name}{Colors.RESET}/'
+
+        return node.name  # For 'blob' and 'commit' types
+
+    def _print_recursive(self, node: Node, prefix: str, current_path: Path):
+        """Recursively prints the tree nodes with proper indentation."""
+        children = sorted(node.children.values(), key=lambda n: (n.node_type != 'tree', n.name))
+
+        for i, child in enumerate(children):
+            is_last = i == len(children) - 1
+            connector = '└── ' if is_last else '├── '
+            # Use the '/' operator from pathlib for clean path joining
+            child_path = current_path / child.name
+
+            display_name = self._get_display_name(child, child_path)
+            print(f'{prefix}{connector}{display_name}')
+
+            new_prefix = prefix + ('    ' if is_last else '│   ')
+            self._print_recursive(child, new_prefix, child_path)
+
+    def print_tree(self):
+        """Public method to start printing the tree."""
+        print(f'{Colors.BLUE}{self.root.name}{Colors.RESET}/')
+        self._print_recursive(self.root, '', self.repo_root)
 
 
-def get_git(cwd):
-    cmd = '/usr/bin/git ls-tree --full-tree --name-only -r HEAD'
-    process = subprocess.Popen(cmd, cwd=cwd, **KWARGS)
-    output, _ = process.communicate()
-    return list(map(lambda x: f"{cwd}/{x.decode('utf-8').strip()}", output.splitlines()))
+# --- Git Interaction Functions ---
+def get_git_repo_root() -> Path:
+    """Finds the root directory of the current Git repository as a Path object."""
+    cmd = ['git', 'rev-parse', '--show-toplevel']
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    return Path(result.stdout.strip())
 
 
-if __name__ == "__main__":
-    path_list = PathLinkedList()
+def get_git_files(repo_root: Path) -> List[Tuple[str, str]]:
+    """Retrieves all tracked files from git, along with their type."""
+    cmd = ['git', 'ls-tree', '--full-tree', '-r', 'HEAD']
+    process = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True, check=True)
 
-    git_paths = get_git(os.getcwd())
+    files = []
+    for line in process.stdout.strip().split('\n'):
+        if not line:
+            continue
+        metadata, path = line.split('\t', 1)
+        mode, node_type, _ = metadata.split()
 
-    for git_path in git_paths:
-        path_list.add_path(git_path)
+        if mode == '120000':
+            node_type = 'symlink'
 
-    path_list.print_paths()
+        files.append((path, node_type))
+    return files
+
+
+# --- Main Execution ---
+if __name__ == '__main__':
+    try:
+        repo_root = get_git_repo_root()
+        git_paths = get_git_files(repo_root)
+
+        path_tree = GitTree(repo_root)
+        for path, node_type in git_paths:
+            path_tree.add_path(path, node_type)
+
+        path_tree.print_tree()
+
+    except FileNotFoundError:
+        print("Error: 'git' command not found. Is Git installed and in your PATH?")
+    except subprocess.CalledProcessError:
+        print('Error: This does not appear to be a Git repository, or it has no commits.')
+    except Exception as e:
+        print(f'An unexpected error occurred: {e}')
