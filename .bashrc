@@ -353,7 +353,13 @@ alias aim='nvim -u ~/.vimrc'
 alias nim='nvim -u NONE'
 alias ms='miniserve . -qu'
 alias doom='~/.config/emacs/bin/doom'
-alias y='yazi'
+y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
 alias yoink='open -a yoink'
 alias glow='glow -w 150'
 
