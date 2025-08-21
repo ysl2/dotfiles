@@ -13,14 +13,13 @@ set relativenumber
 set icons
 set incsearch
 set incfilter
-set smartcase
-set sixel true
+set sixel
 set scrolloff 4
 set mouse
 set period 1
 set info size
 set dircounts
-set ignorecase false
+# set ignorecase false
 
 # === engines
 source ~/.config/lf/lfrc.opener
