@@ -26,16 +26,13 @@ MIMETYPE="$(file --dereference --brief --mime-type -- "$FILE")"
 
 function image_previewer() {
     local experimental # 0 is true, 1 is false. Default 1 for false.
-    experimental="$([[ -n "$2" ]] && echo "$2" || echo 1)"
+    experimental="$([ -n "$2" ] && echo "$2" || echo 1)"
 
     local transfer_mode # Only when ssh, use stream mode. If local, use file mode.
-    transfer_mode="$([[ -n "$SSH_TTY" ]] && echo 'stream' || echo 'file')"
+    transfer_mode="$([ -n "$SSH_TTY" ] && echo 'stream' || echo 'file')"
 
     if [[ "$TERM" == 'xterm-kitty' || (-n "$TMUX" && "$experimental" -eq 0) ]]; then
-        kitty +kitten icat --silent --stdin no --transfer-mode "$transfer_mode" --place "${W}x${H}@${X}x${Y}" "$1" </dev/null >/dev/tty
-        if [ $? -eq 0 ]; then
-            exit 1
-        fi
+        kitty +kitten icat --silent --stdin no --transfer-mode "$transfer_mode" --place "${W}x${H}@${X}x${Y}" "$1" </dev/null >/dev/tty && exit 1
     fi
 
     # For alacritty, I set alacritty default $TERM to xterm-256color
@@ -43,17 +40,11 @@ function image_previewer() {
     # However, if one day in the future, I set tmux $TERM to xterm-256color, it will cause the picture to be displayed incorrectly.
     # So now I have to add the condition of -z "$TMUX" to prevent things happening in the future, even if this is an accidental case.
     if [[ ("$TERM" == 'xterm-256color' && -z "$TMUX") || "$TERM" == 'st-256color' || "$TERM" == 'wezterm' ]]; then
-        chafa -f sixels -s "$W"x"$H" "$1" --polite on
-        if [ $? -eq 0 ]; then
-            exit 0
-        fi
+        chafa -f sixels -s "$W"x"$H" "$1" --polite on && exit 0
     fi
 
     # fallback
-    chafa -f symbols -s "$W"x"$H" "$1"
-    if [ $? -eq 0 ]; then
-        exit 0
-    fi
+    chafa -f symbols -s "$W"x"$H" "$1" && exit 0
 
     # fallback if no chafa
     cat "$1"
@@ -64,7 +55,7 @@ function handle_extension() {
     case "$FILE" in
     *.nii | *.nii.gz)
         # git clone git@git.zhlh6.cn:ysl2/niicat.git ~/.vocal/niicat
-        if [[ ! -f "$TMPFILEPATH" ]]; then
+        if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             niicat "$FILE" "$TMPFILEPATH"
         fi
@@ -72,7 +63,7 @@ function handle_extension() {
         image_previewer "$TMPFILEPATH"
         ;;
     *.six | *.sixel)
-        if [[ ! -f "$TMPFILEPATH" ]]; then
+        if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             sixel2png "$FILE" >"$TMPFILEPATH"
         fi
@@ -91,21 +82,21 @@ function handle_mime() {
         image_previewer "$FILE"
         ;;
     *pdf)
-        if [[ ! -f "$TMPFILEPATH" ]]; then
+        if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             pdftoppm -f 1 -l 1 -png "$FILE" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     audio/*)
-        if [[ ! -f "$TMPFILEPATH" ]]; then
+        if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             ffmpeg -i "$FILE" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     video/*)
-        if [[ ! -f "$TMPFILEPATH" ]]; then
+        if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             # sudo apt install -y ffmpeg
             ffmpeg -i "$FILE" -vf "thumbnail" -frames:v 1 "$TMPFILEPATH"
