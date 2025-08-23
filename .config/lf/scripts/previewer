@@ -91,6 +91,9 @@ function handle_extension() {
         fi
         image_previewer "$TMPFILEPATH"
         ;;
+    *.json)
+        python -m json.tool "$FILE"
+        ;;
     esac
     # WARNING: Do not add any exit value here!
 }
