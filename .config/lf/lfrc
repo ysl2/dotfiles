@@ -412,7 +412,8 @@ cmd extract ${{
     #     *.rar) unrar x $f;;
     #     *.7z) 7z x $f;;
     # esac
-    atool -x $f
+    # atool -x $f
+    unar $f
 }}
 
 # compress current file or selected files with tar and gunzip

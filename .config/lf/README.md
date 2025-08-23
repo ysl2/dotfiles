@@ -1,11 +1,12 @@
-## Dependencies
+# LF
 
-```
-atools (for `extract` command)
-git clone git@git.zhlh6.cn:ysl2/niicat.git ~/.vocal/niicat
-miniserve
+## Previewers
 
-For mac:
-brew install poppler (for MacOS, for `pdftoppm` previewer)
-also need `yoink` (appstore)
-```
+| Tool               | MimeType or FileExt |
+| ------------------ | ------------------- |
+| chafa              | image               |
+| niicat             | nii                 |
+| sixel2png          | sixel               |
+| unar (lsar)        | tar/zip             |
+| poppler (pdftoppm) | pdf                 |
+| ffmpeg             | video/audio         |

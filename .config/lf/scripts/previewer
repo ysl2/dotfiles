@@ -114,7 +114,9 @@ function handle_mime() {
         ;;
     *zip | *tar | *rar | *x-xz)
         # sudo apt install atool
-        als "$FILE" | awk '{print $NF}'
+        # als "$FILE" | awk '{print $NF}'
+        # brew install unar
+        lsar "$FILE"
         exit 0
         ;;
     *)
