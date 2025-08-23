@@ -16,9 +16,9 @@ Y="$5"
 
 # _TMPFILENAME="$(basename "$FILE" | tr ' ' '__' | tr '.' '_')".png
 _TMPFILENAME="$(sha256sum "$FILE" | awk '{print $1}')".png
-_TMPFILEDIR=/tmp/lf_img"$(dirname "$FILE")"
-mkdir -p "$_TMPFILEDIR"
-TMPFILEPATH="${_TMPFILEDIR}/${_TMPFILENAME}"
+TMPFILEDIR=/tmp/lf-img"$(dirname "$FILE")"
+# mkdir -p "$TMPFILEDIR"
+TMPFILEPATH="${TMPFILEDIR}/${_TMPFILENAME}"
 
 # FILE_EXTENSION="${FILE##*.}"
 # FILE_EXTENSION_LOWER="$(printf "%s" "${FILE_EXTENSION}" | tr '[:upper:]' '[:lower:]')"
@@ -65,6 +65,7 @@ function handle_extension() {
     *.nii | *.nii.gz)
         # git clone git@git.zhlh6.cn:ysl2/niicat.git ~/.vocal/niicat
         if [[ ! -f "$TMPFILEPATH" ]]; then
+            mkdir -p "$TMPFILEDIR"
             niicat "$FILE" "$TMPFILEPATH"
         fi
         # image_previewer "$TMPFILEPATH" 0
@@ -72,6 +73,7 @@ function handle_extension() {
         ;;
     *.six | *.sixel)
         if [[ ! -f "$TMPFILEPATH" ]]; then
+            mkdir -p "$TMPFILEDIR"
             sixel2png "$FILE" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
@@ -90,18 +92,21 @@ function handle_mime() {
         ;;
     *pdf)
         if [[ ! -f "$TMPFILEPATH" ]]; then
+            mkdir -p "$TMPFILEDIR"
             pdftoppm -f 1 -l 1 -png "$FILE" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     audio/*)
         if [[ ! -f "$TMPFILEPATH" ]]; then
+            mkdir -p "$TMPFILEDIR"
             ffmpeg -i "$FILE" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     video/*)
         if [[ ! -f "$TMPFILEPATH" ]]; then
+            mkdir -p "$TMPFILEDIR"
             # sudo apt install -y ffmpeg
             ffmpeg -i "$FILE" -vf "thumbnail" -frames:v 1 "$TMPFILEPATH"
         fi
