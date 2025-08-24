@@ -11,3 +11,4 @@
 | poppler (pdftoppm) | pdf                  |
 | ffmpeg             | video/audio          |
 | libreoffice        | doc(x)/ppt(x)/xls(x) |
+| imagemagick        | heic                 |
