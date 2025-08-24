@@ -94,6 +94,14 @@ function handle_extension() {
     *.json)
         python -m json.tool "$FILE"
         ;;
+    *.HEIC)
+        if [ ! -f "$TMPFILEPATH" ]; then
+            mkdir -p "$TMPFILEDIR"
+            # sips -s format png "$FILE" --out "$TMPFILEPATH" >/dev/null
+            magick -quality 0 -define png:compression-level=0 "$FILE" "$TMPFILEPATH"
+        fi
+        image_previewer "$TMPFILEPATH"
+        ;;
     esac
     # WARNING: Do not add any exit value here!
 }
