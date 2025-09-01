@@ -1,8 +1,12 @@
 #!/bin/sh
 
-result="$(ps aux | grep -v grep | grep clash)"
-if [ -n "$result" ]; then
-    google-chrome-stable --proxy-server=localhost:7890 --simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'
+if [ "$(uname)" = Darwin ]; then
+    open -a 'Google Chrome' "$@"
 else
-    google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'
+    result="$(ps aux | grep -v grep | grep clash)"
+    if [ -n "$result" ]; then
+        google-chrome-stable --proxy-server=localhost:7890 --simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'
+    else
+        google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'
+    fi
 fi
