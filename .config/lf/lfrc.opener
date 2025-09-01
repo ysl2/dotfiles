@@ -19,6 +19,10 @@ cmd open &{{
             drawio "$f"
             exit 0
             ;;
+        *.gif)
+            chrome "$f" &> /dev/null
+            exit 0
+            ;;
     esac
 
     # Open by mimetype
