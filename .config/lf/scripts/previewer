@@ -103,6 +103,13 @@ function handle_extension() {
         fi
         image_previewer "$TMPFILEPATH"
         ;;
+    *.drawio)
+        if [ ! -f "$TMPFILEPATH" ]; then
+            mkdir -p "$TMPFILEDIR"
+            drawio "$FILE" --no-sandbox -x -f png -o "$TMPFILEPATH" >/dev/null
+        fi
+        image_previewer "$TMPFILEPATH"
+        ;;
     esac
     # WARNING: Do not add any exit value here!
 }
