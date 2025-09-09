@@ -12,3 +12,4 @@
 | ffmpeg             | video/audio          |
 | libreoffice        | doc(x)/ppt(x)/xls(x) |
 | imagemagick        | heic                 |
+| drawio             | drawio               |
