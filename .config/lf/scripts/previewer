@@ -92,10 +92,10 @@ function handle_extension() {
         fi
         image_previewer "$TMPFILEPATH"
         ;;
-    *.json)
+    *.json | *.tgn)
         python -m json.tool "$FILE"
         ;;
-    *.HEIC)
+    *.HEIC | *.xcf)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             # sips -s format png "$FILE" --out "$TMPFILEPATH" >/dev/null
