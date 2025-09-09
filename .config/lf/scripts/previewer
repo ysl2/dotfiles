@@ -41,8 +41,9 @@ function image_previewer() {
     # However, if one day in the future, I set tmux $TERM to xterm-256color, it will cause the picture to be displayed incorrectly.
     # So now I have to add the condition of -z "$TMUX" to prevent things happening in the future, even if this is an accidental case.
     if [[ ("$TERM" == 'xterm-256color' && -z "$TMUX") || "$TERM" == 'st-256color' || "$TERM" == 'wezterm' ]]; then
+        # chafa -f sixels -s "$W"x"$H" "$1" --animate off && exit 0
         # chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off && exit 0
-        chafa -f sixels -s "$W"x"$H" "$1" --animate off && exit 0
+        chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off --colors 240 && exit 0
     fi
 
     # fallback
