@@ -26,13 +26,13 @@ TMPFILEPATH="${TMPFILEDIR}/${_TMPFILENAME}"
 MIMETYPE="$(file --dereference --brief --mime-type -- "$FILE")"
 
 function image_previewer() {
-    local experimental # 0 is true, 1 is false. Default 1 for false.
-    experimental="$([ -n "$2" ] && echo "$2" || echo 1)"
+    local experimental # Non-empty is true, default leave empty for false.
+    experimental="$2"
 
     local transfer_mode # Only when ssh, use stream mode. If local, use file mode.
     transfer_mode="$([ -n "$SSH_TTY" ] && echo 'stream' || echo 'file')"
 
-    if [[ "$TERM" == 'xterm-kitty' || (-n "$TMUX" && "$experimental" -eq 0) ]]; then
+    if [[ "$TERM" == 'xterm-kitty' || (-n "$TMUX" && -n "$experimental") ]]; then
         kitty +kitten icat --silent --stdin no --transfer-mode "$transfer_mode" --place "${W}x${H}@${X}x${Y}" "$1" </dev/null >/dev/tty && exit 1
     fi
 
@@ -61,7 +61,7 @@ function handle_extension() {
             mkdir -p "$TMPFILEDIR"
             niicat "$FILE" "$TMPFILEPATH"
         fi
-        # image_previewer "$TMPFILEPATH" 0
+        # image_previewer "$TMPFILEPATH" experimental
         image_previewer "$TMPFILEPATH"
         ;;
     *.six | *.sixel)
