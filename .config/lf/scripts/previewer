@@ -8,46 +8,55 @@
 # `exit 1` means lf will not cache the preview result, and will run the cleaner script. Kitty need to exit 1 to solve the picture still remains after preview.
 # `exit 0` means lf will cache the preview result and will acclerate the next time preview for same file. If not previewed by kitty, we can exit 0.
 
-FILE="$(realpath "$1")"
+FILEPATH="$(realpath "$1")"
 W="$2"
 H="$(((${3:-0} * 99) / 100))" # 99% of the height
 X="$4"
 Y="$5"
 
-# _TMPFILENAME="$(basename "$FILE" | tr ' ' '__' | tr '.' '_')".png
-TMPFILEHASH="$(sha256sum "$FILE" | awk '{print $1}')"
-_TMPFILENAME="$TMPFILEHASH".png
-TMPFILEDIR=/tmp/lf-img"$(dirname "$FILE")"
-# mkdir -p "$TMPFILEDIR"
-TMPFILEPATH="${TMPFILEDIR}/${_TMPFILENAME}"
-
+FILENAME="$(basename "$FILEPATH")"
+FILENAMEWITHOUTEXT="${FILENAME%.*}"
+FILEEXT="${FILENAME##*.}"
 # FILE_EXTENSION="${FILE##*.}"
 # FILE_EXTENSION_LOWER="$(printf "%s" "${FILE_EXTENSION}" | tr '[:upper:]' '[:lower:]')"
-MIMETYPE="$(file --dereference --brief --mime-type -- "$FILE")"
+FILETYPE="$(file --dereference --brief --mime-type -- "$FILEPATH")"
+
+# _TMPFILENAME="$(basename "$FILE" | tr ' ' '__' | tr '.' '_')".png
+TMPFILEDIR=/tmp/lf-img"$(dirname "$FILEPATH")"
+TMPFILENAMEWITHOUTEXT="$(sha256sum "$FILEPATH" | awk '{print $1}')"
+TMPFILENAME="$TMPFILENAMEWITHOUTEXT".png
+TMPFILEPATH="${TMPFILEDIR}/${TMPFILENAME}"
+# mkdir -p "$TMPFILEDIR"
 
 function image_previewer() {
     local experimental # Non-empty is true, default leave empty for false.
     experimental="$2"
 
-    local transfer_mode # Only when ssh, use stream mode. If local, use file mode.
-    transfer_mode="$([ -n "$SSH_TTY" ] && echo 'stream' || echo 'file')"
-
     if [[ "$TERM" == 'xterm-kitty' || (-n "$TMUX" && -n "$experimental") ]]; then
+        local transfer_mode # Only when ssh, use stream mode. If local, use file mode.
+        transfer_mode="$([ -n "$SSH_TTY" ] && echo 'stream' || echo 'file')"
+
         kitty +kitten icat --silent --stdin no --transfer-mode "$transfer_mode" --place "${W}x${H}@${X}x${Y}" "$1" </dev/null >/dev/tty && exit 1
     fi
+
+    # fallback
+    local chafa_mode=symbols
 
     # For alacritty, I set alacritty default $TERM to xterm-256color
     # But in tmux, tmux will change the $TERM to screen-256color, this is also I specifically made it.
     # However, if one day in the future, I set tmux $TERM to xterm-256color, it will cause the picture to be displayed incorrectly.
     # So now I have to add the condition of -z "$TMUX" to prevent things happening in the future, even if this is an accidental case.
     if [[ ("$TERM" == 'xterm-256color' && -z "$TMUX") || "$TERM" == 'st-256color' || "$TERM" == 'wezterm' ]]; then
-        # chafa -f sixels -s "$W"x"$H" "$1" --animate off && exit 0
-        # chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off && exit 0
-        chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off --colors 240 && exit 0
+        chafa_mode=sixels
     fi
 
-    # fallback
-    chafa -f symbols -s "$W"x"$H" "$1" && exit 0
+    # chafa -f sixels -s "$W"x"$H" "$1" --animate off && exit 0
+    # chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off && exit 0
+    # chafa -f sixels -s "$W"x"$H" "$1" --polite on --animate off --colors 240 && exit 0
+    # chafa -f "$chafa_mode" -s "$W"x"$H" --polite on --animate off --colors 240 "$1" && exit 0
+
+    # Ref: https://github.com/gokcehan/lf/wiki/Previews#with-sixel
+    chafa -f "$chafa_mode" -s "$W"x"$H" --animate off --polite on -t 1 --colors 240 "$1" && exit 0
 
     # fallback if no chafa
     cat "$1"
@@ -55,12 +64,12 @@ function image_previewer() {
 }
 
 function handle_extension() {
-    case "$FILE" in
+    case "$FILEPATH" in
     *.nii | *.nii.gz)
         # git clone git@git.zhlh6.cn:ysl2/niicat.git ~/.vocal/niicat
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            niicat "$FILE" "$TMPFILEPATH"
+            niicat "$FILEPATH" "$TMPFILEPATH"
         fi
         # image_previewer "$TMPFILEPATH" experimental
         image_previewer "$TMPFILEPATH"
@@ -68,46 +77,46 @@ function handle_extension() {
     *.six | *.sixel)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            sixel2png "$FILE" >"$TMPFILEPATH"
+            sixel2png "$FILEPATH" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     *.pkl)
-        python -c "import pickle; from pprint import pprint; p = pickle.load(open('$FILE', 'rb')); pprint(p)"
+        python -c "import pickle; from pprint import pprint; p = pickle.load(open('$FILEPATH', 'rb')); pprint(p)"
         ;;
     *.doc | *.docx | *.ppt | *.pptx | *.xls | *.xlsx)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            ext="${FILE##*.}"
-            if [[ "$ext" == "doc" || "$ext" == "docx" ]]; then
+            if [[ "$FILEEXT" == "doc" || "$FILEEXT" == "docx" ]]; then
                 tmp=writer_pdf_Export
-            elif [[ "$ext" == "ppt" || "$ext" == "pptx" ]]; then
+            elif [[ "$FILEEXT" == "ppt" || "$FILEEXT" == "pptx" ]]; then
                 tmp=impress_pdf_Export
-            elif [[ "$ext" == "xls" || "$ext" == "xlsx" ]]; then
+            elif [[ "$FILEEXT" == "xls" || "$FILEEXT" == "xlsx" ]]; then
                 tmp=calc_pdf_Export
             fi
-            libreoffice --headless --convert-to "pdf:${tmp}:{\"PageRange\":{\"type\":\"string\",\"value\":\"1\"}}" --outdir "$TMPFILEDIR" "$FILE" >/dev/null
-            tmp="$(basename "$FILE")"
-            mv "${TMPFILEDIR}/${tmp%.*}".pdf "${TMPFILEDIR}/${TMPFILEHASH}.pdf"
-            pdftoppm -f 1 -l 1 -png "${TMPFILEDIR}/${TMPFILEHASH}.pdf" >"$TMPFILEPATH"
+            # Ref: https://help.libreoffice.org/latest/en-US/text/shared/guide/pdf_params.html
+            libreoffice --headless --convert-to "pdf:${tmp}:{\"PageRange\":{\"type\":\"string\",\"value\":\"1\"},\"Quality\":{\"type\":\"long\",\"value\":\"25\"},\"MaxImageResolution\":{\"type\":\"long\",\"value\":\"75\"}}" --outdir "$TMPFILEDIR" "$FILEPATH" >/dev/null
+            mv "${TMPFILEDIR}/${FILENAMEWITHOUTEXT}".pdf "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf"
+            pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     *.json | *.tgn)
-        python -m json.tool "$FILE"
+        python -m json.tool "$FILEPATH"
         ;;
     *.HEIC | *.xcf)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             # sips -s format png "$FILE" --out "$TMPFILEPATH" >/dev/null
-            magick -quality 0 -define png:compression-level=0 "$FILE" "$TMPFILEPATH"
+            # NOTE: this `[0]` below is inteneded to handle multi-frame images. Not a bug.
+            magick "$FILEPATH[0]" -strip -colors 240 -quality 0 -define png:compression-level=0 -define png:compression-strategy=0 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     *.drawio)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            drawio "$FILE" --no-sandbox -x -f png -o "$TMPFILEPATH" >/dev/null
+            drawio "$FILEPATH" --no-sandbox -x -f png -s 0.75 -o "$TMPFILEPATH" >/dev/null
         fi
         image_previewer "$TMPFILEPATH"
         ;;
@@ -116,21 +125,21 @@ function handle_extension() {
 }
 
 function handle_mime() {
-    case "$MIMETYPE" in
+    case "$FILETYPE" in
     image/*)
-        image_previewer "$FILE"
+        image_previewer "$FILEPATH"
         ;;
     *pdf)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            pdftoppm -f 1 -l 1 -png "$FILE" >"$TMPFILEPATH"
+            pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "$FILEPATH" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
     audio/*)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            ffmpeg -i "$FILE" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
+            ffmpeg -i "$FILEPATH" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
@@ -138,7 +147,8 @@ function handle_mime() {
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
             # sudo apt install -y ffmpeg
-            ffmpeg -i "$FILE" -vf "thumbnail" -frames:v 1 "$TMPFILEPATH"
+            # ffmpeg -i "$FILEPATH" -vf "thumbnail" -frames:v 1 "$TMPFILEPATH"
+            ffmpeg -ss 00:00:00 -i "$FILEPATH" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
         ;;
@@ -146,11 +156,11 @@ function handle_mime() {
         # sudo apt install atool
         # als "$FILE" | awk '{print $NF}'
         # brew install unar
-        lsar "$FILE"
+        lsar "$FILEPATH"
         exit 0
         ;;
     *)
-        cat "$FILE"
+        cat "$FILEPATH"
         exit 0
         ;;
     esac

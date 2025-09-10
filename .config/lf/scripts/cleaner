@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
 
-transfer_mode=$([[ -n "$SSH_TTY" ]] && echo 'stream' || echo 'file')
-kitty +kitten icat --clear --stdin no --silent --transfer-mode "$transfer_mode" </dev/null >/dev/tty
+main() {
+    if [[ "$TERM" == 'xterm-kitty' ]]; then
+        local transfer_mode # Only when ssh, use stream mode. If local, use file mode.
+        transfer_mode="$([ -n "$SSH_TTY" ] && echo 'stream' || echo 'file')"
+
+        kitty +kitten icat --clear --stdin no --silent --transfer-mode "$transfer_mode" </dev/null >/dev/tty
+    else
+        clear
+    fi
+}
+
+main "$@"
