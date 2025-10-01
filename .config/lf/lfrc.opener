@@ -50,6 +50,10 @@ cmd open &{{
             fi
             exit 0
             ;;
+        video/*)
+            mpv "$f"
+            exit 0
+            ;;
         *)
             $OPENER "$f" &> /dev/null
             exit 0
