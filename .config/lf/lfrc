@@ -139,7 +139,7 @@ cmd link %{{
         # symbolically copy mode is indicating a soft link
         copy)
             # ln -sr -t . -- "$@"
-            ~/.config/lf/scripts/linker "$@"
+            ~/.config/lf/scripts/linker "$id" "$@"
             ;;
         # while a move mode is indicating a hard link
         move) ln -t . -- "$@";;
