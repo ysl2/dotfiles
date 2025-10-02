@@ -51,6 +51,8 @@ cmd chmod %{{
     lf -remote "send $id :reload"
 }}
 map + :chmod
+map se :{{ set sortby ext; set info size; }}
+map sn :{{ set sortby natural; set info size; }}
 
 
 # =====================
