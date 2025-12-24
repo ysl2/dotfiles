@@ -21,19 +21,17 @@ gui:
       - '#c6d0f5'
     searchingActiveBorderColor:
       - '#e5c890'
-
   authorColors:
     '*': '#babbf1'
-
   language: en
   border: single
 git:
-  paging:
-    colorArg: always
-    # pager: delta --dark --paging=never
+  pagers:
+    - colorArg: always
+      # pager: delta --dark --paging=never
   disableForcePushing: true
 keybinding:
-    universal:
-        quit-alt1: <disabled>
-        # return: <c-c>
-        pushFiles: <disabled>
+  universal:
+    quit-alt1: <disabled>
+    # return: <c-c>
+    pushFiles: <disabled>
