@@ -104,6 +104,7 @@ if [ -d "$HOMEBREW_PREFIX" ] && [ "$(uname)" = Darwin ]; then
     # brew install gnu-sed
     addToPATH "$HOMEBREW_PREFIX"/opt/gnu-sed/libexec/gnubin
 fi
+addToPATH "$HOME"/.local/share/bob/nvim-bin
 
 # ===
 # === In sequences, last in first out.
