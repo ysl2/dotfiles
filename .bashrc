@@ -91,7 +91,7 @@ addToPATH "$HOME"/.local/bin
 # === No sequences, but put them last.
 # ===
 # addToPATH /var/lib/flatpak/exports/bin  # Not needed.
-#addToPATH "$HOME"/.local/kitty.app/bin
+# addToPATH "$HOME"/.local/kitty.app/bin
 addToPATH "$HOME"/.cargo/bin
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
