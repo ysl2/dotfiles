@@ -13,7 +13,6 @@ set relativenumber
 set icons
 set incsearch
 set incfilter
-set sixel
 set scrolloff 4
 set mouse
 set period 1
