@@ -17,6 +17,8 @@ export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 export SDL_IM_MODULE=fcitx
 export GLFW_IM_MODULE=ibus
+# For firefox two-finger scalling zoom
+export MOZ_USE_XINPUT2=1
 # Ref: https://stackoverflow.com/a/27776822/13379393
 if [ "$(uname)" = Darwin ]; then
     HOMEBREW_PREFIX=/opt/homebrew
