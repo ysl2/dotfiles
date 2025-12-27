@@ -222,6 +222,8 @@ onconda
 # ===
 # === Environment variables
 # ===
+# Ref: https://www.reddit.com/r/zsh/comments/er6fok/getting_sign_in_output
+export PROMPT_EOL_MARK=
 export EDITOR
 EDITOR="$(command -v nvim &> /dev/null && echo nvim || echo vim)"
 # export LD_LIBRARY_PATH=
