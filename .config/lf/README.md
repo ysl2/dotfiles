@@ -14,3 +14,9 @@
 | libreoffice        | doc(x)/ppt(x)/xls(x) |
 | imagemagick        | heic                 |
 | drawio             | drawio               |
+
+## Openers
+
+| Tool               | MimeType or FileExt  |
+| ------------------ | -------------------- |
+| mpv                | video                |
