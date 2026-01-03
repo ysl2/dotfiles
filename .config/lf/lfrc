@@ -43,13 +43,13 @@ map <c-s> ${{
 map i $~/.config/lf/scripts/previewer $f | $PAGER
 
 cmd chmod %{{
-    printf "Change permission: "
-    read ans
+    ans="${1:-}"
+    [ -z "$(printf '%s' "$ans" | tr -d '[:space:]')" ] && exit 0
     chmod $ans $fx
     lf -remote "send $id :unselect"
     lf -remote "send $id :reload"
 }}
-map + :chmod
+map + push :chmod<space>
 map se :{{ set sortby ext; set info size; }}
 map sn :{{ set sortby natural; set info size; }}
 
@@ -74,20 +74,24 @@ cmd move-parent &{{
 map J move-parent down
 map K move-parent up
 
-cmd create %{{
-    printf "Create: "
-    read ans
-    [ -z "$ans" ] && exit
-    if [[ "$ans" == */ ]]; then
-        mkdir -p "$ans"
-        lf -remote "send $id cd \"$ans\""
-    else
-        mkdir -p "$(dirname "$ans")"
-        touch "$ans"
-        lf -remote "send $id select \"$ans\""
-    fi
+cmd create ${{
+    ans="${1:-}"
+
+    [ -z "$(printf '%s' "$ans" | tr -d '[:space:]')" ] && exit 0
+
+    case "$ans" in
+        */)
+            mkdir -p "$ans"
+            lf -remote "send $id cd \"$ans\""
+            ;;
+        *)
+            mkdir -p "$(dirname "$ans")"
+            touch "$ans"
+            lf -remote "send $id select \"$ans\""
+            ;;
+    esac
 }}
-map a create
+map a push :create<space>
 
 cmd bulk-rename ${{
     old="$(mktemp)"
