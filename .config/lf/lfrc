@@ -230,86 +230,86 @@ cmd select-dirs &{{
     lf -remote "send $id :unselect; toggle $(get_dirs)"
 }}
 
-cmd bookmark-create %{{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    mkdir -p "$LF_BOOKMARK_PATH"
-    printf "Mark current path to (string): "
-    read ans
-    if [ -z "$ans" ]; then
-        lf -remote "send $id reload"
-        exit 0
-    fi
-    for f in "$LF_BOOKMARK_PATH"/*; do
-        if [ ! -f "$f" ]; then
-            continue
-        fi
-        target_path="$(cat "$f")"
-        if [ ! -d "$target_path" ] || [ "$PWD" = "$target_path" ]; then
-            rm "$f"
-        fi
-    done
-    echo "$PWD" > "${LF_BOOKMARK_PATH}/${ans}"
-    lf -remote "send $id reload"
-}}
-cmd bookmark-jump ${{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    mkdir -p "$LF_BOOKMARK_PATH"
-    target_mark="$(ls "$LF_BOOKMARK_PATH" | fzf || exit 0)"
-    if [ -z "$target_mark" ]; then
-        exit 0
-    fi
-    target_path="$(cat "${LF_BOOKMARK_PATH}/${target_mark}" 2> /dev/null)"
-    if [ ! -d "$target_path" ]; then
-        rm "${LF_BOOKMARK_PATH}/${target_mark}"
-        lf -remote "send $id echo \"Path not found, Removed from bookmarks.\""
-        exit 0
-    fi
-    lf -remote "send $id cd \"$target_path\""
-}}
-cmd bookmark-remove ${{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    mkdir -p "$LF_BOOKMARK_PATH"
-    target_mark="$(ls "$LF_BOOKMARK_PATH" | fzf || exit 0)"
-    if [ -z "$target_mark" ]; then
-        exit 0
-    fi
-    rm "${LF_BOOKMARK_PATH}/${target_mark}" 2> /dev/null
-}}
-cmd bookmark-remove-current-path ${{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    [ ! -d "$LF_BOOKMARK_PATH" ] && exit 0
-    for f in "$LF_BOOKMARK_PATH"/*; do
-        if [ ! -f "$f" ]; then
-            continue
-        fi
-        if [ "$PWD" = "$(cat "$f")" ]; then
-            rm "$f"
-        fi
-    done
-}}
-cmd bookmark-remove-not-exist ${{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    [ ! -d "$LF_BOOKMARK_PATH" ] && exit 0
-    for f in "$LF_BOOKMARK_PATH"/*; do
-        if [ ! -f "$f" ]; then
-            continue
-        fi
-        if [ ! -d "$(cat "$f")" ]; then
-            rm "$f"
-        fi
-    done
-}}
-cmd bookmark-remove-all ${{
-    LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
-    rm -rf "$LF_BOOKMARK_PATH" 2> /dev/null
-}}
-map m
-map mm bookmark-create
-map ` bookmark-jump
-map mM bookmark-remove
-map <a-m> bookmark-remove-current-path
-map <a-'> bookmark-remove-not-exist
-map <a-"> bookmark-remove-all
+# cmd bookmark-create %{{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     mkdir -p "$LF_BOOKMARK_PATH"
+#     printf "Mark current path to (string): "
+#     read ans
+#     if [ -z "$ans" ]; then
+#         lf -remote "send $id reload"
+#         exit 0
+#     fi
+#     for f in "$LF_BOOKMARK_PATH"/*; do
+#         if [ ! -f "$f" ]; then
+#             continue
+#         fi
+#         target_path="$(cat "$f")"
+#         if [ ! -d "$target_path" ] || [ "$PWD" = "$target_path" ]; then
+#             rm "$f"
+#         fi
+#     done
+#     echo "$PWD" > "${LF_BOOKMARK_PATH}/${ans}"
+#     lf -remote "send $id reload"
+# }}
+# cmd bookmark-jump ${{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     mkdir -p "$LF_BOOKMARK_PATH"
+#     target_mark="$(ls "$LF_BOOKMARK_PATH" | fzf || exit 0)"
+#     if [ -z "$target_mark" ]; then
+#         exit 0
+#     fi
+#     target_path="$(cat "${LF_BOOKMARK_PATH}/${target_mark}" 2> /dev/null)"
+#     if [ ! -d "$target_path" ]; then
+#         rm "${LF_BOOKMARK_PATH}/${target_mark}"
+#         lf -remote "send $id echo \"Path not found, Removed from bookmarks.\""
+#         exit 0
+#     fi
+#     lf -remote "send $id cd \"$target_path\""
+# }}
+# cmd bookmark-remove ${{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     mkdir -p "$LF_BOOKMARK_PATH"
+#     target_mark="$(ls "$LF_BOOKMARK_PATH" | fzf || exit 0)"
+#     if [ -z "$target_mark" ]; then
+#         exit 0
+#     fi
+#     rm "${LF_BOOKMARK_PATH}/${target_mark}" 2> /dev/null
+# }}
+# cmd bookmark-remove-current-path ${{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     [ ! -d "$LF_BOOKMARK_PATH" ] && exit 0
+#     for f in "$LF_BOOKMARK_PATH"/*; do
+#         if [ ! -f "$f" ]; then
+#             continue
+#         fi
+#         if [ "$PWD" = "$(cat "$f")" ]; then
+#             rm "$f"
+#         fi
+#     done
+# }}
+# cmd bookmark-remove-not-exist ${{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     [ ! -d "$LF_BOOKMARK_PATH" ] && exit 0
+#     for f in "$LF_BOOKMARK_PATH"/*; do
+#         if [ ! -f "$f" ]; then
+#             continue
+#         fi
+#         if [ ! -d "$(cat "$f")" ]; then
+#             rm "$f"
+#         fi
+#     done
+# }}
+# cmd bookmark-remove-all ${{
+#     LF_BOOKMARK_PATH=~/.local/share/lf/bookmarks
+#     rm -rf "$LF_BOOKMARK_PATH" 2> /dev/null
+# }}
+# map m
+# map mm bookmark-create
+# map ` bookmark-jump
+# map mM bookmark-remove
+# map <a-m> bookmark-remove-current-path
+# map <a-'> bookmark-remove-not-exist
+# map <a-"> bookmark-remove-all
 
 # cmd z %{{
 #     printf "Zoxide goto: "
