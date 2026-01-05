@@ -1,16 +1,19 @@
 #!/bin/sh
 
 
-SCRIPTS_ROOTDIR=~/.vocal/0/scripts
+ROOTDIR=~/.vocal/0/scripts/wm
+
+
+# ==============
+# === Common ===
+# ==============
+"$ROOTDIR"/autostart_common.sh
 
 
 # =============
 # === Utils ===
 # =============
-# NOTE: Sync environment variables from startx shell to D-Bus and systemd.
-dbus-update-activation-environment --systemd --all
-
-single_instance="$SCRIPTS_ROOTDIR"/wm/utils/single_instance.sh
+single_instance="$ROOTDIR"/utils/single_instance.sh
 
 
 # ================
@@ -38,14 +41,14 @@ esac
 # ================
 # === Keyboard ===
 # ================
-"$SCRIPTS_ROOTDIR"/wm/autostart/keyboard.sh
+"$ROOTDIR"/autostart_x11.d/keyboard.sh
 
 
 # ==============
 # === Screen ===
 # ==============
 # Disable screen blanking and screen saver
-"$single_instance" "$SCRIPTS_ROOTDIR"/wm/autostart/screen.sh
+"$single_instance" "$ROOTDIR"/autostart_x11.d/screen.sh
 
 # # Disable screen blanking
 # xset s 0 0
@@ -66,7 +69,7 @@ esac
 # Keep tracking current sound settings into file.
 # In fact, we don't need single_instance here, because the `sound.sh` defines a condition to exit loop.
 # We use single_instance here only for preventing the accidental case.
-# "$single_instance" "$SCRIPTS_ROOTDIR"/wm/autostart/sound.sh
+# "$single_instance" "$ROOTDIR"/autostart_x11.d/sound.sh
 
 # # Ref: https://wiki.archlinux.org/title/PulseAudio/Troubleshooting#Pulse_overwrites_ALSA_settings
 # restore_alsa() {
@@ -87,10 +90,10 @@ killall picom 2> /dev/null; picom -D 0 -f -b --vsync
 # rm ~/.cache/dmenu_run 2> /dev/null
 killall unclutter 2> /dev/null; unclutter --timeout 1 &
 killall dunst 2> /dev/null; dunst -config ~/.config/dunst/dunstrc &
-# "$single_instance" "$SCRIPTS_ROOTDIR"/wm/autostart/nautilus.sh
+# "$single_instance" "$ROOTDIR"/autostart_x11.d/nautilus.sh
 
 
 # =============================
 # === Load localhost config ===
 # =============================
-[ -f "$SCRIPTS_ROOTDIR"/wm/autostart.localhost.sh ] && "$SCRIPTS_ROOTDIR"/wm/autostart.localhost.sh
+[ -f "$ROOTDIR"/autostart_x11.localhost.sh ] && "$ROOTDIR"/autostart_x11.localhost.sh

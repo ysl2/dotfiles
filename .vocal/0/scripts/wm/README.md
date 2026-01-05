@@ -1,5 +1,7 @@
 # wm
 
+## wm-x11
+
 This is my self common scripts folder specifically for all windows managers like i3, dwm, etc.
 
 ```bash
