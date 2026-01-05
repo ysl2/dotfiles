@@ -1,24 +1,16 @@
 # If not running interactively, don't do anything
 # if [ -z "$DESKTOP_SESSION" ] && [ -n "$-" ] && ! echo "$-" | grep -q "i"; then
 if [ -t 0 ] && [ -n "$-" ] && ! echo "$-" | grep -q "i"; then
-   return
+    return
 fi
 # ===================================================
 # === Utils and some global environment variables ===
 # ===================================================
 export VOCAL="$HOME"/.vocal
-mkdir -p "$VOCAL" &> /dev/null
+mkdir -p "$VOCAL" &>/dev/null
 VOCALOCK="$VOCAL"/.lock
-mkdir -p "$VOCALOCK" &> /dev/null
+mkdir -p "$VOCALOCK" &>/dev/null
 
-# The fcitx things must be put here, because it should be sourced when system booting.
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-export SDL_IM_MODULE=fcitx
-export GLFW_IM_MODULE=ibus
-# For firefox two-finger scalling zoom
-export MOZ_USE_XINPUT2=1
 # Ref: https://stackoverflow.com/a/27776822/13379393
 if [ "$(uname)" = Darwin ]; then
     HOMEBREW_PREFIX=/opt/homebrew
@@ -28,11 +20,19 @@ fi
 
 # Get value from localhost.
 [ -f ~/.bashrc.localhost.pre ] && . ~/.bashrc.localhost.pre
+export MYTMUX # For neovide to use tmux.
 # MYCONDA: str
 # MYTMUX: str
 # MYNOMIRRORFLAG: int
-export MYTMUX  # For neovide to use tmux.
 
+# The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx
+export GLFW_IM_MODULE=ibus
+# For firefox two-finger scalling zoom
+export MOZ_USE_XINPUT2=1
 
 # =================================
 # === Define addToPATH function ===
@@ -62,7 +62,6 @@ searchToPATH() {
         fi
     done
 }
-
 
 # ============
 # === PATH ===
@@ -97,7 +96,7 @@ addToPATH "$HOME"/.local/bin
 addToPATH "$HOME"/.cargo/bin
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
-if command -v go > /dev/null 2>&1; then
+if command -v go >/dev/null 2>&1; then
     _go="$(which go)"
     GOPATH="${_go%/*/*}"/gopath
     addToPATH "$GOPATH"/bin
@@ -115,7 +114,6 @@ searchToPATH "$VOCAL"
 addToPATH "$VOCAL"
 addToPATH "$VOCAL"/0/bin
 
-
 # ===========================
 # === For display manager ===
 # ===========================
@@ -126,7 +124,6 @@ addToPATH "$VOCAL"/0/bin
 
 # Ref: https://stackoverflow.com/questions/54933530/bash-script-determine-if-script-launched-in-terminal-console-or-gui
 [ ! -t 0 ] && return
-
 
 # ===========================
 # === For manually startx ===
@@ -139,7 +136,6 @@ fi
 # For safety consideration, we still give it a default value.
 [ -z "$DISPLAY" ] && export DISPLAY=:0
 
-
 # =========================
 # === Boot tmux if need ===
 # =========================
@@ -149,14 +145,13 @@ ontmux() {
     [ -n "$TMUX" ] && return
 
     local mytmux="$MYTMUX"
-    [ ! -x "$mytmux" ] && command -v tmux &> /dev/null && mytmux=tmux
-    echo "Current tmux value: \"${mytmux}\"" > "$VOCALOCK_TMUX"
+    [ ! -x "$mytmux" ] && command -v tmux &>/dev/null && mytmux=tmux
+    echo "Current tmux value: \"${mytmux}\"" >"$VOCALOCK_TMUX"
     [ -z "$mytmux" ] && return
 
     exec "$mytmux" new-session -A -s main "$SHELL"
 }
 ontmux
-
 
 # =============================
 # === Define addTo function ===
@@ -171,7 +166,6 @@ ontmux
 #       *) eval "$1='$2:${!1}'";;
 #     esac
 # }
-
 
 # ==========================
 # === Boot conda if need ===
@@ -188,12 +182,12 @@ onconda() {
             myconda="$VOCAL"/miniconda3
         fi
     fi
-    echo "Current conda value: \"${myconda}\"" > "$VOCALOCK_CONDA"
+    echo "Current conda value: \"${myconda}\"" >"$VOCALOCK_CONDA"
     [ -z "$myconda" ] && return
 
     # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$("$myconda"/bin/conda "shell.$(basename $SHELL)" hook 2> /dev/null)"
+    __conda_setup="$("$myconda"/bin/conda "shell.$(basename $SHELL)" hook 2>/dev/null)"
     if [ "$?" -eq 0 ]; then
         eval "$__conda_setup"
     else
@@ -207,7 +201,6 @@ onconda() {
     # <<< conda initialize <<<
 }
 onconda
-
 
 # ==============
 # === Others ===
@@ -228,19 +221,19 @@ export LD_LIBRARY_PATH="$VOCAL"/cuda/lib64:"$LD_LIBRARY_PATH"
 # Ref: https://www.reddit.com/r/zsh/comments/er6fok/getting_sign_in_output
 export PROMPT_EOL_MARK=
 export EDITOR
-EDITOR="$(command -v nvim &> /dev/null && echo nvim || echo vim)"
+EDITOR="$(command -v nvim &>/dev/null && echo nvim || echo vim)"
 # 1-May-2020: Fix for Keyring error with pip. Hopefully new pip will fix it
 # soon https://github.com/pypa/pip/issues/7883
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 export STARSHIP_LOG=error
 export CONDA_CHANGEPS1=no
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore -g !.git'
-export FZF_COMPLETION_TRIGGER=\\  # Press single `\<Tab>` to trigger. Double backslash for escaping.
+export FZF_COMPLETION_TRIGGER=\\ # Press single `\<Tab>` to trigger. Double backslash for escaping.
 export GO111MODULE=on
 export GOPATH
 # export TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 export TESSDATA_PREFIX="$VOCAL"/tessdata_best
-if [ -d "$HOMEBREW_PREFIX" ]; then  # To simulate the brew shellenv command.
+if [ -d "$HOMEBREW_PREFIX" ]; then # To simulate the brew shellenv command.
     export HOMEBREW_PREFIX
     export HOMEBREW_CELLAR="$HOMEBREW_PREFIX"/Cellar
     export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX"/Homebrew
@@ -331,20 +324,18 @@ jo() {
     exit_code="$?"
 
     case "$exit_code" in
-        # regular exit
-        0)
-            ;;
-        # output contains current directory
-        101)
-            JOSHUTO_CWD="$(cat "$OUTPUT_FILE")"
-            \cd "$JOSHUTO_CWD"
-            ;;
-        # output selected files
-        102)
-            ;;
-        *)
-            echo "Exit code: ${exit_code}"
-            ;;
+    # regular exit
+    0) ;;
+    # output contains current directory
+    101)
+        JOSHUTO_CWD="$(cat "$OUTPUT_FILE")"
+        \cd "$JOSHUTO_CWD"
+        ;;
+    # output selected files
+    102) ;;
+    *)
+        echo "Exit code: ${exit_code}"
+        ;;
     esac
 }
 alias xterm='xterm -ti vt340'
@@ -357,11 +348,11 @@ alias nim='nvim -u NONE'
 alias ms='miniserve . -qu'
 alias doom='~/.config/emacs/bin/doom'
 y() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	IFS= read -r -d '' cwd < "$tmp"
-	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-	rm -f -- "$tmp"
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd <"$tmp"
+    [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+    rm -f -- "$tmp"
 }
 alias yoink='open -a yoink'
 alias glow='glow -w 150'
@@ -369,29 +360,28 @@ alias glow='glow -w 150'
 # ===
 # === Outside sources
 # ===
-command -v starship > /dev/null 2>&1 && eval "$(starship init $(basename "$SHELL"))"
-if command -v fzf > /dev/null 2>&1; then
+command -v starship >/dev/null 2>&1 && eval "$(starship init $(basename "$SHELL"))"
+if command -v fzf >/dev/null 2>&1; then
     fzf_bin="$(which fzf)"
     fzf_bin="$(realpath "$fzf_bin")"
     fzf_root_dir="$(dirname "$(dirname "$fzf_bin")")"
-    fzf_files_array=($(find "$fzf_root_dir"/shell -maxdepth 1 -name "*.$(basename $SHELL)" 2> /dev/null))
+    fzf_files_array=($(find "$fzf_root_dir"/shell -maxdepth 1 -name "*.$(basename $SHELL)" 2>/dev/null))
     for f in "${fzf_files_array[@]}"; do
-       . "$f"
+        . "$f"
     done
 fi
 # Note: autin must be inited after fzf beacuse there are keybinding conflict between them.
-if command -v atuin > /dev/null 2>&1; then
+if command -v atuin >/dev/null 2>&1; then
     if [ "$(basename "$SHELL")" = bash ]; then
-        [ ! -f ~/.bashrc.bash-preexec ] && command -v curl > /dev/null 2>&1 && curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bashrc.bash-preexec
+        [ ! -f ~/.bashrc.bash-preexec ] && command -v curl >/dev/null 2>&1 && curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bashrc.bash-preexec
         [ -f ~/.bashrc.bash-preexec ] && . ~/.bashrc.bash-preexec
     fi
     eval "$(atuin init $(basename "$SHELL"))"
 fi
 # command -v mcfly > /dev/null 2>&1 && eval "$(mcfly init $(basename "$SHELL"))"
-command -v zoxide > /dev/null 2>&1 && eval "$(zoxide init $(basename "$SHELL"))"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init $(basename "$SHELL"))"
 # Prevent nautilus from generating core dump file.
 ulimit -c 0
-
 
 # ===============
 # === For zsh ===
@@ -400,12 +390,10 @@ if [ -n "$ZSH_VERSION" ]; then
     [ -f ~/.bashrc.zsh ] && . ~/.bashrc.zsh
 fi
 
-
 # ==================
 # === Post loads ===
 # ==================
 [ -f ~/.bashrc.localhost.post ] && . ~/.bashrc.localhost.post
-
 
 # ========================
 # === Unique varaibles ===
