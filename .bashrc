@@ -24,9 +24,12 @@ export MYTMUX # For neovide to use tmux.
 # MYCONDA: str
 # MYTMUX: str
 # MYNOMIRRORFLAG: int
+# MYWAYLAND: str. e.g, `sway --unsupported-gpu`
 
 # The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
-export GTK_IM_MODULE=fcitx
+if [ -z "$MYWAYLAND" ]; then
+    export GTK_IM_MODULE=fcitx
+fi
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 export SDL_IM_MODULE=fcitx
@@ -130,7 +133,15 @@ addToPATH "$VOCAL"/0/bin
 # ===========================
 if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
     # rm -rf ~/.Xauthority-*
-    exec startx
+    if [ -n "$MYWAYLAND" ]; then
+        export LIBVA_DRIVER_NAME=nvidia
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export WLR_RENDERER=vulkan
+        export WLR_NO_HARDWARE_CURSORS=1
+        exec ${=MYWAYLAND}  # NOTE: Do not add double quotes here.
+    else
+        exec startx
+    fi
 fi
 # No need: The $DISPLAY will be auto set after startx.
 # For safety consideration, we still give it a default value.
