@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -x /usr/bin/i3bar ]; then
+    exec /usr/bin/i3bar -t
+elif [ -x /home/linuxbrew/.linuxbrew/bin/i3bar ]; then
+    exec /home/linuxbrew/.linuxbrew/bin/i3bar -t
+fi
