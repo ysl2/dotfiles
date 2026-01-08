@@ -265,6 +265,11 @@ export LC_ALL=en_US.UTF-8
 # NOTE: End of setting LANG and LC_ALL
 # For lazygit in MacOS:
 export XDG_CONFIG_HOME=~/.config
+# NOTE: Speed up Huggingface model downloading
+# Ref: https://www.reddit.com/r/LocalLLaMA/comments/1ise5ly/speed_up_downloading_hugging_face_models_by_100x/
+# pip install hf_transfer
+export HF_HUB_ENABLE_HF_TRANSFER=1
+export HF_HUB_DOWNLOAD_TIMEOUT=600
 # For Chinese mirrors:
 if [ "$MYNOMIRRORFLAG" != 1 ]; then
     # Node.js
@@ -280,6 +285,8 @@ if [ "$MYNOMIRRORFLAG" != 1 ]; then
     export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
     export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
     export UV_DEFAULT_INDEX=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+    # Huggingface
+    export HF_ENDPOINT=https://hf-mirror.com
 fi
 
 # ===
