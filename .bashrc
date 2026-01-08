@@ -1,18 +1,23 @@
 # If not running interactively, don't do anything
 # if [ -z "$DESKTOP_SESSION" ] && [ -n "$-" ] && ! echo "$-" | grep -q "i"; then
-if [ -t 0 ] && [ -n "$-" ] && ! echo "$-" | grep -q "i"; then
-    return
-fi
+# if [ -t 0 ] && [ -n "$-" ] && ! echo "$-" | grep -q "i"; then
+#     return
+# fi
+[ -t 0 ] && case "$-" in *i*) ;; *) return ;; esac
+
 # ===================================================
 # === Utils and some global environment variables ===
 # ===================================================
 export VOCAL="$HOME"/.vocal
-mkdir -p "$VOCAL" &>/dev/null
+mkdir -p "$VOCAL" >/dev/null 2>&1
 VOCALOCK="$VOCAL"/.lock
-mkdir -p "$VOCALOCK" &>/dev/null
+mkdir -p "$VOCALOCK" >/dev/null 2>&1
+
+UNAME="$(uname)"
+BASENAME_SHELL="${SHELL##*/}"
 
 # Ref: https://stackoverflow.com/a/27776822/13379393
-if [ "$(uname)" = Darwin ]; then
+if [ "$UNAME" = Darwin ]; then
     HOMEBREW_PREFIX=/opt/homebrew
 else
     HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
@@ -42,7 +47,7 @@ export MOZ_USE_XINPUT2=1
 # =================================
 export PATH
 addToPATH() {
-    PATH="$1":"$PATH"
+    # PATH="$1":"$PATH"
     # case ":${PATH:=$1}:" in
     #     *:"$1":*)
     #         ;;
@@ -50,19 +55,18 @@ addToPATH() {
     #         PATH="$1:$PATH"
     #         ;;
     # esac
+    case ":$PATH:" in *:"$1":*) ;; *) PATH="$1:$PATH" ;; esac
 }
-backToPATH() {
-    PATH="$PATH":"$1"
-}
+# backToPATH() {
+#     PATH="$PATH":"$1"
+# }
 searchToPATH() {
-    # find "$1" -maxdepth 1 -type d ! -name "*conda*" -exec sh -c 'if [ -d "$1/bin" ]; then echo "PATH=\"$1/bin:\$PATH\"" >> /tmp/paths.sh; fi' sh {} \;
-    # [ -f /tmp/paths.sh ] && . /tmp/paths.sh && rm /tmp/paths.sh
-    [ -z "$(ls "$1")" ] && return
+    [ ! -d "$1" ] && return
     for item in "$1"/*; do
-        # if [ -d "$item"/bin ]; then
-        if [ -d "$item"/bin ] && echo "$item" | grep -qv conda; then
-            PATH="${item}"/bin:"$PATH"
-        fi
+        [ -d "$item/bin" ] || continue
+        [ -n "${item##*conda*}" ] || continue
+        [ -n "${item##*forge*}" ] || continue
+        PATH="${item}/bin:${PATH}"
     done
 }
 
@@ -100,11 +104,11 @@ addToPATH "$HOME"/.cargo/bin
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
 if command -v go >/dev/null 2>&1; then
-    _go="$(which go)"
+    _go="$(command -v go)"
     GOPATH="${_go%/*/*}"/gopath
     addToPATH "$GOPATH"/bin
 fi
-if [ -d "$HOMEBREW_PREFIX" ] && [ "$(uname)" = Darwin ]; then
+if [ -d "$HOMEBREW_PREFIX" ] && [ "$UNAME" = Darwin ]; then
     # brew install gnu-sed
     addToPATH "$HOMEBREW_PREFIX"/opt/gnu-sed/libexec/gnubin
 fi
@@ -138,7 +142,11 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
         export WLR_RENDERER=vulkan
         export WLR_NO_HARDWARE_CURSORS=1
-        exec ${=MYWAYLAND}  # NOTE: Do not add double quotes here.
+        if [ -n "$ZSH_VERSION" ]; then
+            exec ${=MYWAYLAND}
+        else
+            exec $MYWAYLAND
+        fi
     else
         exec startx
     fi
@@ -196,20 +204,24 @@ onconda() {
     echo "Current conda value: \"${myconda}\"" >"$VOCALOCK_CONDA"
     [ -z "$myconda" ] && return
 
-    # >>> conda initialize >>>
-    # !! Contents within this block are managed by 'conda init' !!
-    __conda_setup="$("$myconda"/bin/conda "shell.$(basename $SHELL)" hook 2>/dev/null)"
-    if [ "$?" -eq 0 ]; then
-        eval "$__conda_setup"
+    if [ -f "$myconda/etc/profile.d/conda.sh" ]; then
+        . "$myconda/etc/profile.d/conda.sh"
     else
-        if [ -f "$myconda"/etc/profile.d/conda.sh ]; then
-            . "$myconda"/etc/profile.d/conda.sh
+        # >>> conda initialize >>>
+        # !! Contents within this block are managed by 'conda init' !!
+        __conda_setup="$("$myconda"/bin/conda "shell.${BASENAME_SHELL}" hook 2>/dev/null)"
+        if [ "$?" -eq 0 ]; then
+            eval "$__conda_setup"
         else
-            addToPATH "$myconda"/bin
+            if [ -f "$myconda"/etc/profile.d/conda.sh ]; then
+                . "$myconda"/etc/profile.d/conda.sh
+            else
+                addToPATH "$myconda"/bin
+            fi
         fi
+        unset __conda_setup
+        # <<< conda initialize <<<
     fi
-    unset __conda_setup
-    # <<< conda initialize <<<
 }
 onconda
 
@@ -231,8 +243,12 @@ onconda
 export LD_LIBRARY_PATH="$VOCAL"/cuda/lib64:"$LD_LIBRARY_PATH"
 # Ref: https://www.reddit.com/r/zsh/comments/er6fok/getting_sign_in_output
 export PROMPT_EOL_MARK=
+if command -v nvim >/dev/null 2>&1; then
+    export EDITOR=nvim
+else
+    export EDITOR=vim
+fi
 export EDITOR
-EDITOR="$(command -v nvim &>/dev/null && echo nvim || echo vim)"
 # 1-May-2020: Fix for Keyring error with pip. Hopefully new pip will fix it
 # soon https://github.com/pypa/pip/issues/7883
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
@@ -378,26 +394,28 @@ alias glow='glow -w 150'
 # ===
 # === Outside sources
 # ===
-command -v starship >/dev/null 2>&1 && eval "$(starship init $(basename "$SHELL"))"
+command -v starship >/dev/null 2>&1 && eval "$(starship init "$BASENAME_SHELL")"
 if command -v fzf >/dev/null 2>&1; then
-    fzf_bin="$(which fzf)"
+    fzf_bin="$(command -v fzf)"
     fzf_bin="$(realpath "$fzf_bin")"
     fzf_root_dir="$(dirname "$(dirname "$fzf_bin")")"
-    fzf_files_array=($(find "$fzf_root_dir"/shell -maxdepth 1 -name "*.$(basename $SHELL)" 2>/dev/null))
+    fzf_files_array=($(find "$fzf_root_dir"/shell -maxdepth 1 -name "*.${BASENAME_SHELL}" 2>/dev/null))
     for f in "${fzf_files_array[@]}"; do
         . "$f"
     done
 fi
 # Note: autin must be inited after fzf beacuse there are keybinding conflict between them.
 if command -v atuin >/dev/null 2>&1; then
-    if [ "$(basename "$SHELL")" = bash ]; then
-        [ ! -f ~/.bashrc.bash-preexec ] && command -v curl >/dev/null 2>&1 && curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bashrc.bash-preexec
+    if [ "$BASENAME_SHELL" = bash ]; then
+        if [ ! -f ~/.bashrc.bash-preexec ]; then
+            command -v curl >/dev/null 2>&1 && curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bashrc.bash-preexec
+        fi
         [ -f ~/.bashrc.bash-preexec ] && . ~/.bashrc.bash-preexec
     fi
-    eval "$(atuin init $(basename "$SHELL"))"
+    eval "$(atuin init "$BASENAME_SHELL")"
 fi
 # command -v mcfly > /dev/null 2>&1 && eval "$(mcfly init $(basename "$SHELL"))"
-command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init $(basename "$SHELL"))"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init "$BASENAME_SHELL")"
 # Prevent nautilus from generating core dump file.
 ulimit -c 0
 
