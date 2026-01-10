@@ -97,7 +97,8 @@ function handle_extension() {
             # Ref: https://help.libreoffice.org/latest/en-US/text/shared/guide/pdf_params.html
             libreoffice --headless --convert-to "pdf:${tmp}:{\"PageRange\":{\"type\":\"string\",\"value\":\"1\"},\"Quality\":{\"type\":\"long\",\"value\":\"25\"},\"MaxImageResolution\":{\"type\":\"long\",\"value\":\"75\"}}" --outdir "$TMPFILEDIR" "$FILEPATH" >/dev/null
             mv "${TMPFILEDIR}/${FILENAMEWITHOUTEXT}".pdf "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf"
-            pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" >"$TMPFILEPATH"
+            # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" >"$TMPFILEPATH"
+            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" 1
         fi
         image_previewer "$TMPFILEPATH"
         ;;
@@ -132,7 +133,8 @@ function handle_mime() {
     *pdf)
         if [ ! -f "$TMPFILEPATH" ]; then
             mkdir -p "$TMPFILEDIR"
-            pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "$FILEPATH" >"$TMPFILEPATH"
+            # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "$FILEPATH" >"$TMPFILEPATH"
+            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "$FILEPATH" 1
         fi
         image_previewer "$TMPFILEPATH"
         ;;
