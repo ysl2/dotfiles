@@ -135,7 +135,8 @@ addToPATH "$VOCAL"/0/bin
 # ===========================
 # === For manually startx ===
 # ===========================
-if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
+# if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
+if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" = "1" ]; then
     # rm -rf ~/.Xauthority-*
     if [ -n "$MYWAYLAND" ]; then
         export LIBVA_DRIVER_NAME=nvidia
@@ -153,7 +154,7 @@ if [ -z "$DISPLAY" ] && [ -n "$XDG_VTNR" ] && [ "$XDG_VTNR" -eq 1 ]; then
 fi
 # No need: The $DISPLAY will be auto set after startx.
 # For safety consideration, we still give it a default value.
-[ -z "$DISPLAY" ] && export DISPLAY=:0
+# [ -z "$DISPLAY" ] && export DISPLAY=:0
 
 # =========================
 # === Boot tmux if need ===
