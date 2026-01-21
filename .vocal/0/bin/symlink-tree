@@ -1,0 +1,34 @@
+#!/bin/sh
+
+show_usage() {
+    echo "Usage: $0 [-h] [-s SOURCE] [-t TARGET]"
+    echo "  -h           Show this help message"
+    echo "  -s SOURCE    Source directory"
+    echo "  -t TARGET    Target directory"
+    exit 0
+}
+
+SOURCE=""
+TARGET=""
+
+while getopts "hs:t:" opt; do
+    case "$opt" in
+        h) show_usage ;;
+        s) SOURCE="$OPTARG" ;;
+        t) TARGET="$OPTARG" ;;
+        ?) show_usage ;;
+    esac
+done
+
+if [ -z "$SOURCE" ] || [ -z "$TARGET" ]; then
+    echo "Error: SOURCE and TARGET are required"
+    show_usage
+fi
+
+find "$SOURCE" -type d -printf '%P\n' | while read -r dir; do
+    mkdir -p "$TARGET/$dir"
+done
+
+find "$SOURCE" -type f -printf '%P\n' | while read -r file; do
+    ln -srf "$SOURCE/$file" "$TARGET/$file"
+done
