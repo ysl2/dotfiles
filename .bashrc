@@ -8,9 +8,9 @@
 # ===================================================
 # === Utils and some global environment variables ===
 # ===================================================
-export VOCAL="$HOME"/.vocal
+export VOCAL="${HOME}/.vocal"
 mkdir -p "$VOCAL" >/dev/null 2>&1
-VOCALOCK="$VOCAL"/.lock
+VOCALOCK="${VOCAL}/.lock"
 mkdir -p "$VOCALOCK" >/dev/null 2>&1
 
 UNAME="$(uname)"
@@ -63,7 +63,7 @@ addToPATH() {
 searchToPATH() {
     [ ! -d "$1" ] && return
     for item in "$1"/*; do
-        [ -d "$item/bin" ] || continue
+        [ -d "${item}/bin" ] || continue
         [ -n "${item##*conda*}" ] || continue
         [ -n "${item##*forge*}" ] || continue
         PATH="${item}/bin:${PATH}"
@@ -78,48 +78,48 @@ searchToPATH() {
 # === For homebrew apps.
 # ===
 if [ -d "$HOMEBREW_PREFIX" ]; then
-    addToPATH "$HOMEBREW_PREFIX"/sbin
-    addToPATH "$HOMEBREW_PREFIX"/bin
+    addToPATH "${HOMEBREW_PREFIX}/sbin"
+    addToPATH "${HOMEBREW_PREFIX}/bin"
 fi
 
 # ===
 # === For conda apps.
 # ===
-[ -n "$MYCONDA" ] && [ -d "$MYCONDA"/bin ] && addToPATH "$MYCONDA"/bin
+[ -n "$MYCONDA" ] && [ -d "${MYCONDA}/bin" ] && addToPATH "${MYCONDA}/bin"
 
 # ===
 # === No sequences, for system default.
 # ===
 addToPATH /sbin
 addToPATH /usr/sbin
-addToPATH "$HOME"/bin
-addToPATH "$HOME"/.local/bin
+addToPATH "${HOME}/bin"
+addToPATH "${HOME}/.local/bin"
 
 # ===
 # === No sequences, but put them last.
 # ===
 # addToPATH /var/lib/flatpak/exports/bin  # Not needed.
 # addToPATH "$HOME"/.local/kitty.app/bin
-addToPATH "$HOME"/.cargo/bin
+addToPATH "${HOME}/.cargo/bin"
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
 if command -v go >/dev/null 2>&1; then
     _go="$(command -v go)"
-    GOPATH="${_go%/*/*}"/gopath
-    addToPATH "$GOPATH"/bin
+    GOPATH="${_go%/*/*}/gopath"
+    addToPATH "${GOPATH}/bin"
 fi
 if [ -d "$HOMEBREW_PREFIX" ] && [ "$UNAME" = Darwin ]; then
     # brew install gnu-sed
-    addToPATH "$HOMEBREW_PREFIX"/opt/gnu-sed/libexec/gnubin
+    addToPATH "${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin"
 fi
-addToPATH "$HOME"/.local/share/bob/nvim-bin
+addToPATH "${HOME}/.local/share/bob/nvim-bin"
 
 # ===
 # === In sequences, last in first out.
 # ===
 searchToPATH "$VOCAL"
 addToPATH "$VOCAL"
-addToPATH "$VOCAL"/0/bin
+addToPATH "${VOCAL}/0/bin"
 
 # ===========================
 # === For display manager ===
@@ -190,34 +190,34 @@ ontmux
 # ==========================
 # === Boot conda if need ===
 # ==========================
-VOCALOCK_CONDA="$VOCALOCK"/conda
+VOCALOCK_CONDA="${VOCALOCK}/conda"
 onconda() {
     [ ! -e "$VOCALOCK_CONDA" ] && return
 
     local myconda="$MYCONDA"
     if [ ! -d "$myconda" ]; then
-        if [ -d "$VOCAL"/anaconda3 ]; then
-            myconda="$VOCAL"/anaconda3
-        elif [ -d "$VOCAL"/miniconda3 ]; then
-            myconda="$VOCAL"/miniconda3
+        if [ -d "${VOCAL}/anaconda3" ]; then
+            myconda="${VOCAL}/anaconda3"
+        elif [ -d "${VOCAL}/miniconda3" ]; then
+            myconda="${VOCAL}/miniconda3"
         fi
     fi
     echo "Current conda value: \"${myconda}\"" >"$VOCALOCK_CONDA"
     [ -z "$myconda" ] && return
 
-    if [ -f "$myconda/etc/profile.d/conda.sh" ]; then
-        . "$myconda/etc/profile.d/conda.sh"
+    if [ -f "${myconda}/etc/profile.d/conda.sh" ]; then
+        . "${myconda}/etc/profile.d/conda.sh"
     else
         # >>> conda initialize >>>
         # !! Contents within this block are managed by 'conda init' !!
-        __conda_setup="$("$myconda"/bin/conda "shell.${BASENAME_SHELL}" hook 2>/dev/null)"
+        __conda_setup="$("${myconda}/bin/conda" "shell.${BASENAME_SHELL}" hook 2>/dev/null)"
         if [ "$?" -eq 0 ]; then
             eval "$__conda_setup"
         else
-            if [ -f "$myconda"/etc/profile.d/conda.sh ]; then
-                . "$myconda"/etc/profile.d/conda.sh
+            if [ -f "${myconda}/etc/profile.d/conda.sh" ]; then
+                . "${myconda}/etc/profile.d/conda.sh"
             else
-                addToPATH "$myconda"/bin
+                addToPATH "${myconda}/bin"
             fi
         fi
         unset __conda_setup
@@ -241,7 +241,7 @@ onconda
 # ===
 # === Environment variables
 # ===
-export LD_LIBRARY_PATH="$VOCAL"/cuda/lib64:"$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="${VOCAL}/cuda/lib64:${LD_LIBRARY_PATH}"
 # Ref: https://www.reddit.com/r/zsh/comments/er6fok/getting_sign_in_output
 export PROMPT_EOL_MARK=
 if command -v nvim >/dev/null 2>&1; then
@@ -260,11 +260,11 @@ export FZF_COMPLETION_TRIGGER=\\ # Press single `\<Tab>` to trigger. Double back
 export GO111MODULE=on
 export GOPATH
 # export TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
-export TESSDATA_PREFIX="$VOCAL"/tessdata_best
+export TESSDATA_PREFIX="${VOCAL}/tessdata_best"
 if [ -d "$HOMEBREW_PREFIX" ]; then # To simulate the brew shellenv command.
     export HOMEBREW_PREFIX
-    export HOMEBREW_CELLAR="$HOMEBREW_PREFIX"/Cellar
-    export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX"/Homebrew
+    export HOMEBREW_CELLAR="${HOMEBREW_PREFIX}/Cellar"
+    export HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}/Homebrew"
     export MANPATH="${HOMEBREW_PREFIX}/share/man${MANPATH+:$MANPATH}:"
     export INFOPATH="${HOMEBREW_PREFIX}/share/info:${INFOPATH:-}"
 fi
@@ -437,7 +437,7 @@ fi
 # ========================
 uniqTo() {
     content="$(eval "echo \$$1")"
-    eval "$1=$(echo -n $content | tr ":" "\n" | awk '!x[$0]++' | tr "\n" ":")"
+    eval "$1=$(echo -n "$content" | tr ":" "\n" | awk '!x[$0]++' | tr "\n" ":")"
 }
 tmp="$(uname -a)"
 if [[ ! "$tmp" == *MINGW64* ]] && [[ ! "$tmp" == *WSL* ]]; then
