@@ -9,9 +9,9 @@
 # === Utils and some global environment variables ===
 # ===================================================
 export VOCAL="${HOME}/.vocal"
-mkdir -p "$VOCAL" >/dev/null 2>&1
+[ -d "$(dirname "$VOCAL")" ] || mkdir -p "$VOCAL"
 VOCALOCK="${VOCAL}/.lock"
-mkdir -p "$VOCALOCK" >/dev/null 2>&1
+[ -d "$(dirname "$VOCALOCK")" ] || mkdir -p "$VOCALOCK"
 
 UNAME="$(uname)"
 BASENAME_SHELL="${SHELL##*/}"
@@ -162,17 +162,17 @@ fi
 # =========================
 VOCALOCK_TMUX="$VOCALOCK"/tmux
 ontmux() {
-    [ ! -e "$VOCALOCK_TMUX" ] && return
+    # [ ! -e "$VOCALOCK_TMUX" ] && return
     [ -n "$TMUX" ] && return
 
     local mytmux="$MYTMUX"
     [ ! -x "$mytmux" ] && command -v tmux &>/dev/null && mytmux=tmux
-    echo "Current tmux value: \"${mytmux}\"" >"$VOCALOCK_TMUX"
+    # echo "Current tmux value: \"${mytmux}\"" >"$VOCALOCK_TMUX"
     [ -z "$mytmux" ] && return
 
     exec "$mytmux" new-session -A -s main "$SHELL"
 }
-ontmux
+[ -e "$VOCALOCK_TMUX" ] && ontmux
 
 # =============================
 # === Define addTo function ===
@@ -193,7 +193,7 @@ ontmux
 # ==========================
 VOCALOCK_CONDA="${VOCALOCK}/conda"
 onconda() {
-    [ ! -e "$VOCALOCK_CONDA" ] && return
+    # [ ! -e "$VOCALOCK_CONDA" ] && return
 
     local myconda="$MYCONDA"
     if [ ! -d "$myconda" ]; then
@@ -203,7 +203,7 @@ onconda() {
             myconda="${VOCAL}/miniconda3"
         fi
     fi
-    echo "Current conda value: \"${myconda}\"" >"$VOCALOCK_CONDA"
+    # echo "Current conda value: \"${myconda}\"" >"$VOCALOCK_CONDA"
     [ -z "$myconda" ] && return
 
     if [ -f "${myconda}/etc/profile.d/conda.sh" ]; then
@@ -225,7 +225,7 @@ onconda() {
         # <<< conda initialize <<<
     fi
 }
-onconda
+[ -e "$VOCALOCK_CONDA" ] && onconda
 
 # ==============
 # === Others ===
@@ -311,8 +311,14 @@ fi
 # === Functions
 # ===
 toggle() {
-    [ ! -e "$1" ] && touch "$1" || rm "$1"
-    eval "$2"
+    # [ ! -e "$1" ] && touch "$1" || rm "$1"
+    # eval "$2"
+    if [ -e "$1" ]; then
+        rm "$1"
+    else
+        touch "$1"
+        eval "$2"
+    fi
 }
 totmux() {
     toggle "$VOCALOCK_TMUX" ontmux
