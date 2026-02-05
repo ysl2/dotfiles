@@ -144,7 +144,8 @@ if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" = "1" ]; then
         export WLR_RENDERER=vulkan
         export WLR_NO_HARDWARE_CURSORS=1
         if [ -n "$ZSH_VERSION" ]; then
-            exec ${=MYWAYLAND}
+            # exec ${=MYWAYLAND}
+            eval 'exec ${=MYWAYLAND}'
         else
             exec $MYWAYLAND
         fi
