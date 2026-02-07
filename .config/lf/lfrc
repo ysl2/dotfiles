@@ -16,8 +16,26 @@ set incfilter
 set scrolloff 4
 set mouse
 set period 1
-set info size
-set dircounts
+# set info size
+# set dircounts
+set info custom
+cmd on-load &{{
+    [ "$#" -gt 999 ] && exit
+    sleep 0.1
+    for file in "$@"; do
+        (
+            if [ -d "$file" ]; then
+                count=$(ls -1A "$file" 2>/dev/null | wc -l | tr -d ' ')
+                [ -n "$count" ] && lf -remote "send $id :addcustominfo \"${file}\" \"${count}\""
+                # size=$(du -sh "$file" 2>/dev/null | awk '{print $1}')
+                # [ -n "$size" ] && lf -remote "send $id :addcustominfo \"${file}\" \"${count} ${size}\""
+            else
+                size=$(ls -lh "$file" 2>/dev/null | awk '{print $5}')
+                [ -n "$size" ] && lf -remote "send $id :addcustominfo \"${file}\" \"${size}\""
+            fi
+        ) &
+    done
+}}
 # set ignorecase false
 
 # === engines
