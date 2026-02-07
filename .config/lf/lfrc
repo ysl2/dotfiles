@@ -39,7 +39,7 @@ map <c-g> &{{
 map <c-s> ${{
     miniserve . -qu
 }}
-# map R :reload
+map R :reload
 map i $~/.config/lf/scripts/previewer $f | $PAGER
 
 cmd chmod %{{
