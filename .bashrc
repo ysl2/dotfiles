@@ -155,7 +155,7 @@ if [ -z "$SSH_CONNECTION" ] && [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] &&
 fi
 # No need: The $DISPLAY will be auto set after startx.
 # For safety consideration, we still give it a default value.
-# [ -z "$DISPLAY" ] && export DISPLAY=:0
+# [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && export DISPLAY=:0
 
 # =========================
 # === Boot tmux if need ===
