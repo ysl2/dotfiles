@@ -33,11 +33,11 @@ export MYTMUX # For neovide to use tmux.
 
 # The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
 if [ -z "$MYWAYLAND" ]; then
-    export GTK_IM_MODULE=fcitx
+    export GTK_IM_MODULE=fcitx5
 fi
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-export SDL_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx5
+export XMODIFIERS=@im=fcitx5
+export SDL_IM_MODULE=fcitx5
 export GLFW_IM_MODULE=ibus
 # For firefox two-finger scalling zoom
 export MOZ_USE_XINPUT2=1
