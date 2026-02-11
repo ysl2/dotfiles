@@ -173,6 +173,8 @@ map P :link
 cmd yank-dirname ${{
     if [ "$(uname)" = 'Darwin' ]; then
         dirname -- "$f" | tr -d '\n' | pbcopy
+    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
+        dirname -- "$f" | wl-copy
     else
         dirname -- "$f" | head -c-1 | xclip -i -selection clipboard
     fi
@@ -180,6 +182,8 @@ cmd yank-dirname ${{
 cmd yank-path ${{
     if [ "$(uname)" = 'Darwin' ]; then
         printf '%s' "$f" | pbcopy
+    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
+        printf '%s' "$f" | wl-copy
     else
         printf '%s' "$f" | xclip -i -selection clipboard
     fi
