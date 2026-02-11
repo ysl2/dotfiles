@@ -45,6 +45,8 @@ cmd open &{{
         image/*)
             if [ "$(uname)" = Darwin ]; then
                 $OPENER "$f" &> /dev/null
+            elif [ -n "${WAYLAND_DISPLAY-}" ]; then
+                imv "$f" &> /dev/null
             else
                 feh --scale-down "$f" &> /dev/null
             fi
