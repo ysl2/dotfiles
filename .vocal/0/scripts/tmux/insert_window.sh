@@ -6,6 +6,23 @@
 # 6,-1 means insert at the end (shortcut: any number >= last window)
 # 2,3 means insert between window 2 and 3 (target position becomes left+1)
 
+# Get the absolute path of the current script to allow self-calling
+# This ensures the callback works regardless of where the script is located
+SCRIPT_PATH=$(realpath "$0" 2>/dev/null || readlink -f "$0")
+# If the script is called without arguments (triggered by the keybinding),
+# it calculates the current layout and prompts the user for input.
+if [[ -z "$1" ]]; then
+    # Generate the window layout string
+    # Format: [N] for active window, N for others
+    # CRITICAL FIX: We use '|' as a separator instead of ',' because tmux 
+    # command-prompt parses commas as delimiters between prompts/commands.
+    layout=$(tmux list-windows -F "#{?window_active,[#{window_index}],#{window_index}}" | paste -sd '|' - | sed 's/|/ | /g')
+    # Prompt the user
+    # We pass the user's input (%%) back to this same script as an argument
+    tmux command-prompt -p "Current: $layout. Insert window at:" "run-shell \"bash '$SCRIPT_PATH' %%\""
+    exit 0
+fi
+
 input="$1"
 
 if [[ -z "$input" ]]; then
