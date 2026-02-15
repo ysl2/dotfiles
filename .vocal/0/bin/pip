@@ -1,2 +1,0 @@
-#!/bin/bash
-"$(command -v python3 &> /dev/null && echo python3 || echo python2)" -m pip "$@"
