@@ -30,10 +30,19 @@ if [[ -z "$input" ]]; then
     exit 0
 fi
 
-# Get all window indices
-mapfile -t all_windows < <(tmux list-windows -F '#{window_index}' | sort -n)
+# Get all window indices (Bash 3 compatible; no mapfile/readarray).
+all_windows=()
+while IFS= read -r w; do
+    all_windows+=("$w")
+done < <(tmux list-windows -F '#{window_index}' | sort -n)
+
+if [[ "${#all_windows[@]}" -eq 0 ]]; then
+    tmux display-message "Error: no windows found"
+    exit 0
+fi
+
 min_window="${all_windows[0]}"
-max_window="${all_windows[-1]}"
+max_window="${all_windows[$((${#all_windows[@]} - 1))]}"
 
 current_index=$(tmux display-message -p '#{window_index}')
 
