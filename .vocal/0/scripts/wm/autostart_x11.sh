@@ -41,7 +41,7 @@ esac
 # ================
 # === Keyboard ===
 # ================
-"$ROOTDIR"/autostart_x11.d/keyboard.sh
+"$single_instance" "$ROOTDIR"/autostart_x11.d/keyboard.sh
 
 
 # ==============
