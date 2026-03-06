@@ -346,7 +346,7 @@ alias :qa=exit
 ranger='source ranger ranger'
 alias ranger="$ranger"
 alias ra="$ranger"
-alias py=python
+alias py=python3
 alias ipy=ipython
 # Ref: https://github.com/gokcehan/lf/blob/master/etc/lfcd.sh
 lf() {
