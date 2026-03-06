@@ -176,7 +176,7 @@ cmd yank-dirname ${{
     elif [ -n "${WAYLAND_DISPLAY-}" ]; then
         dirname -- "$f" | wl-copy
     else
-        dirname -- "$f" | head -c-1 | xclip -i -selection clipboard
+        dirname -- "$f" | head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
     fi
 }}
 cmd yank-path ${{
@@ -185,14 +185,14 @@ cmd yank-path ${{
     elif [ -n "${WAYLAND_DISPLAY-}" ]; then
         printf '%s' "$f" | wl-copy
     else
-        printf '%s' "$f" | xclip -i -selection clipboard
+        printf '%s' "$f" | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
     fi
 }}
 cmd yank-basename ${{
     if [ "$(uname)" = 'Darwin' ]; then
         basename -- "$f" | tr -d '\n' | pbcopy
     else
-        basename -- "$f" | head -c-1 | xclip -i -selection clipboard
+        basename -- "$f" | head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
     fi
 }}
 cmd yank-basename-without-extension ${{
@@ -212,7 +212,7 @@ cmd yank-basename-without-extension ${{
           print $0
       }' |
       if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
-      xclip -i -selection clipboard
+      xclip -d "${DISPLAY:-:0}" -i -selection clipboard
 }}
 # map y
 # map yy :copy
