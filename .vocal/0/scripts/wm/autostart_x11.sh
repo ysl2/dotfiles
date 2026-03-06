@@ -81,19 +81,25 @@ esac
 # restore_alsa &
 
 
-# ================
-# === Programs ===
-# ================
-# killall picom 2> /dev/null; picom -D 5 -f -b --vsync
-killall picom 2> /dev/null; picom -D 0 -f -b --vsync
+# ========================
+# === Pre load configs ===
+# ========================
 # Clean dmenu cache
 # rm ~/.cache/dmenu_run 2> /dev/null
-killall unclutter 2> /dev/null; unclutter --timeout 1 &
-killall dunst 2> /dev/null; dunst -config ~/.config/dunst/dunstrc &
+killall -q -w -s 9 unclutter; unclutter --timeout 1 &
+killall -q -w -s 9 dunst; dunst -config ~/.config/dunst/dunstrc &
 # "$single_instance" "$ROOTDIR"/autostart_x11.d/nautilus.sh
 
 
-# =============================
-# === Load localhost config ===
-# =============================
+# ===========================
+# === Custom load configs ===
+# ===========================
 [ -f "$ROOTDIR"/autostart_x11.localhost.sh ] && "$ROOTDIR"/autostart_x11.localhost.sh
+
+
+# =========================
+# === Post load configs ===
+# =========================
+# NOTE: Put this behind custom configs to fix potential issue of picom and xarandr conflicts.
+# killall picom 2> /dev/null; picom -D 5 -f -b --vsync
+killall -q -w -s 9 picom; picom -D 0 -f -b --vsync
