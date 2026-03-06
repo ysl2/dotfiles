@@ -170,7 +170,7 @@ ontmux() {
     # echo "Current tmux value: \"${mytmux}\"" >"$VOCALOCK_TMUX"
     [ -z "$mytmux" ] && return
 
-    exec "$mytmux" new-session -A -s main "$SHELL"
+    exec "$mytmux" new-session -A -s "${1:-main}" "$SHELL"
 }
 [ -e "$VOCALOCK_TMUX" ] && ontmux
 
