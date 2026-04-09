@@ -191,6 +191,8 @@ cmd yank-path ${{
 cmd yank-basename ${{
     if [ "$(uname)" = 'Darwin' ]; then
         basename -- "$f" | tr -d '\n' | pbcopy
+    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
+        basename -- "$f" | wl-copy -n
     else
         basename -- "$f" | head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
     fi
