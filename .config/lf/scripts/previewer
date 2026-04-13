@@ -60,7 +60,6 @@ function image_previewer() {
 
     # fallback if no chafa
     cat "$1"
-    exit 0
 }
 
 function handle_extension() {
@@ -73,6 +72,7 @@ function handle_extension() {
         fi
         # image_previewer "$TMPFILEPATH" experimental
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     *.six | *.sixel)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -80,9 +80,11 @@ function handle_extension() {
             sixel2png "$FILEPATH" >"$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     *.pkl)
         python -c "import pickle; from pprint import pprint; p = pickle.load(open('$FILEPATH', 'rb')); pprint(p)"
+        exit 0
         ;;
     *.doc | *.docx | *.ppt | *.pptx | *.xls | *.xlsx)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -101,9 +103,11 @@ function handle_extension() {
             mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" 1
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     *.json | *.tgn)
         python -m json.tool "$FILEPATH"
+        exit 0
         ;;
     *.HEIC | *.xcf)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -113,6 +117,7 @@ function handle_extension() {
             magick "$FILEPATH[0]" -strip -colors 240 -quality 0 -define png:compression-level=0 -define png:compression-strategy=0 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     *.drawio)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -120,6 +125,7 @@ function handle_extension() {
             drawio "$FILEPATH" --no-sandbox -x -f png -s 0.75 -o "$TMPFILEPATH" >/dev/null
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     esac
     # WARNING: Do not add any exit value here!
@@ -129,6 +135,7 @@ function handle_mime() {
     case "$FILETYPE" in
     image/*)
         image_previewer "$FILEPATH"
+        exit 0
         ;;
     *pdf)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -137,6 +144,7 @@ function handle_mime() {
             mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "$FILEPATH" 1
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     audio/*)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -144,6 +152,7 @@ function handle_mime() {
             ffmpeg -i "$FILEPATH" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     video/*)
         if [ ! -f "$TMPFILEPATH" ]; then
@@ -153,6 +162,7 @@ function handle_mime() {
             ffmpeg -ss 00:00:00 -i "$FILEPATH" -frames:v 1 "$TMPFILEPATH"
         fi
         image_previewer "$TMPFILEPATH"
+        exit 0
         ;;
     *zip | *tar | *rar | *x-xz)
         # sudo apt install atool
