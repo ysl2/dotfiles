@@ -23,6 +23,10 @@ cmd open &{{
             chrome "$f" &> /dev/null
             exit 0
             ;;
+        *.csv)
+            lf -remote "send $id \$vd \"\$f\" 2>/dev/null"
+            exit 0
+            ;;
     esac
 
     # Open by mimetype

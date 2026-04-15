@@ -20,3 +20,4 @@
 | Tool | MimeType or FileExt |
 | ---- | ------------------- |
 | mpv  | video               |
+| vd   | csv                 |
