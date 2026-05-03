@@ -39,10 +39,10 @@ cmd open &{{
             exit 0
             ;;
         application/pdf)
-            if [ "$(uname)" = Darwin ]; then
-                $OPENER "$f" &> /dev/null
+            if command -v zathura >/dev/null 2>&1; then
+                zathura "$f" >/dev/null 2>&1
             else
-                zathura "$f" &> /dev/null
+                $OPENER "$f" >/dev/null 2>&1
             fi
             exit 0
             ;;
