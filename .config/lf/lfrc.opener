@@ -20,7 +20,7 @@ cmd open &{{
             exit 0
             ;;
         *.gif)
-            chrome "$f" &> /dev/null
+            chrome "$f" >/dev/null 2>&1
             exit 0
             ;;
         *.csv)
@@ -48,11 +48,11 @@ cmd open &{{
             ;;
         image/*)
             if [ "$(uname)" = Darwin ]; then
-                $OPENER "$f" &> /dev/null
+                $OPENER "$f" >/dev/null 2>&1
             elif [ -n "${WAYLAND_DISPLAY-}" ]; then
-                imv "$f" &> /dev/null
+                imv "$f" >/dev/null 2>&1
             else
-                feh --scale-down "$f" &> /dev/null
+                feh --scale-down "$f" >/dev/null 2>&1
             fi
             exit 0
             ;;
@@ -61,7 +61,7 @@ cmd open &{{
             exit 0
             ;;
         *)
-            $OPENER "$f" &> /dev/null
+            $OPENER "$f" >/dev/null 2>&1
             exit 0
             ;;
     esac
