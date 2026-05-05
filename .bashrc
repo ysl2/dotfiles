@@ -28,7 +28,7 @@ fi
 export MYTMUX # For neovide to use tmux.
 # MYCONDA: str
 # MYTMUX: str
-# MYNOMIRRORFLAG: int
+# MYCNMIRROR: int
 # MYWAYLAND: str. e.g, `sway --unsupported-gpu`
 
 # The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
@@ -289,7 +289,7 @@ export XDG_CONFIG_HOME=~/.config
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export HF_HUB_DOWNLOAD_TIMEOUT=600
 # For Chinese mirrors:
-if [ "$MYNOMIRRORFLAG" != 1 ]; then
+if [ "$MYCNMIRROR" = 1 ]; then
     # Node.js
     export N_NODE_MIRROR=https://npm.taobao.org/mirrors/node
     # Golang
