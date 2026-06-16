@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+import re
+import visidata.menu  # noqa: F401 NOTE: Keep this line below: load menu bindings before overriding Ctrl+H
+from visidata import vd, VisiData, Sheet, BaseSheet
+
+
+# ================
+# === Settings ===
+# ================
+
+
+@Sheet.property
+def cursorRowIndex1(sheet):
+    return sheet.cursorRowIndex + 1
+
+
+@Sheet.property
+def cursorColIndex1(sheet):
+    return sheet.cursorVisibleColIndex + 1
+
+
+Sheet.class_options.disp_rstatus_fmt = (
+    '{sheet.threadStatus} {sheet.keystrokeStatus}   '
+    '[:longname_status]{sheet.longname}[/]  '
+    'R:{sheet.cursorRowIndex1}/{sheet.nRows} '
+    'C:{sheet.cursorColIndex1}/{sheet.nVisibleCols}  '
+    '{sheet.modifiedStatus}{sheet.selectedStatus}'
+    '{vd.replayStatus}{vd.sidebarStatus}'
+)
+
+
+vd.options.motd_url = ''
+
+_STATUS_PATTERNS_TO_HIDE = (
+    re.compile(r'^saul\.pw/VisiData v'),
+    re.compile(r'^Support VisiData:'),
+    re.compile(r'^opening .+ as .+$'),
+    re.compile(r'^\^\[$'),
+)
+
+
+def _clear_unwanted_statuses():
+    changed = False
+    for key in list(vd.statuses.keys()):
+        _, msgparts = key
+        messages = tuple(map(str, msgparts))
+        if any(pattern.match(msg) for msg in messages for pattern in _STATUS_PATTERNS_TO_HIDE):
+            vd.statuses.pop(key, None)
+            changed = True
+    if changed:
+        vd.clearCaches()
+
+
+@VisiData.before
+def drawSidebar(vd, scr, sheet):
+    _clear_unwanted_statuses()
+
+
+# ===============
+# === Keymaps ===
+# ===============
+
+BaseSheet.addCommand(
+    '^[',
+    'cancel-sheet-silent',
+    'vd.cancelThread(*sheet.currentThreads) if sheet.currentThreads else None',
+    'abort all threads on current sheet if any',
+)
+BaseSheet.unbindkey('^C')
+
+Sheet.addCommand(
+    'Ctrl+D',
+    'scroll-halfpage-down',
+    'n = nScreenRows//2; cursorDown(n); sheet.topRowIndex += n',
+    'scroll down half a page',
+)
+Sheet.addCommand(
+    'Ctrl+U',
+    'scroll-halfpage-up',
+    'n = nScreenRows//2; cursorDown(-n); sheet.topRowIndex = max(0, sheet.topRowIndex - n)',
+    'scroll up half a page',
+)
+
+BaseSheet.unbindkey('Ctrl+H')
+BaseSheet.bindkey('Ctrl+H', 'slide-left')
+BaseSheet.bindkey('KEY_BACKSPACE', 'slide-left')
+Sheet.bindkey('Ctrl+L', 'slide-right')
+Sheet.addCommand(
+    'H',
+    'vim-screen-top',
+    'sheet.cursorRowIndex = sheet.topRowIndex',
+    'go to top visible row',
+)
+
+Sheet.addCommand(
+    'L',
+    'vim-screen-bottom',
+    'sheet.cursorRowIndex = sheet.bottomRowIndex',
+    'go to bottom visible row',
+)
