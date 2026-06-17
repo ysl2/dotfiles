@@ -24,8 +24,8 @@ FILETYPE="$(file --dereference --brief --mime-type -- "$FILEPATH")"
 # _TMPFILENAME="$(basename "$FILE" | tr ' ' '__' | tr '.' '_')".png
 TMPFILEDIR=/tmp/lf-img"$(dirname "$FILEPATH")"
 TMPFILENAMEWITHOUTEXT="$(sha256sum "$FILEPATH" | awk '{print $1}')"
-TMPFILENAME="$TMPFILENAMEWITHOUTEXT".png
-TMPFILEPATH="${TMPFILEDIR}/${TMPFILENAME}"
+TMPFILENAMEPNG="$TMPFILENAMEWITHOUTEXT".png
+TMPFILEPATHPNG="${TMPFILEDIR}/${TMPFILENAMEPNG}"
 # mkdir -p "$TMPFILEDIR"
 
 function image_previewer() {
@@ -66,20 +66,20 @@ function handle_extension() {
     case "$FILEPATH" in
     *.nii | *.nii.gz)
         # git clone git@git.zhlh6.cn:ysl2/niicat.git ~/.vocal/niicat
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
-            niicat "$FILEPATH" "$TMPFILEPATH"
+            niicat "$FILEPATH" "$TMPFILEPATHPNG"
         fi
         # image_previewer "$TMPFILEPATH" experimental
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     *.six | *.sixel)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
-            sixel2png "$FILEPATH" >"$TMPFILEPATH"
+            sixel2png "$FILEPATH" >"$TMPFILEPATHPNG"
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     *.pkl)
@@ -87,7 +87,7 @@ function handle_extension() {
         exit 0
         ;;
     *.doc | *.docx | *.ppt | *.pptx | *.xls | *.xlsx)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
             local office_cmd
             if command -v libreoffice >/dev/null 2>&1; then
@@ -111,9 +111,9 @@ function handle_extension() {
             "$office_cmd" --headless --convert-to "pdf:${tmp}:{\"PageRange\":{\"type\":\"string\",\"value\":\"1\"},\"Quality\":{\"type\":\"long\",\"value\":\"25\"},\"MaxImageResolution\":{\"type\":\"long\",\"value\":\"75\"}}" --outdir "$TMPFILEDIR" "$FILEPATH" >/dev/null
             mv "${TMPFILEDIR}/${FILENAMEWITHOUTEXT}".pdf "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf"
             # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" >"$TMPFILEPATH"
-            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" 1
+            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATHPNG" "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" 1
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     *.json | *.tgn)
@@ -121,21 +121,29 @@ function handle_extension() {
         exit 0
         ;;
     *.HEIC | *.xcf)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
             # sips -s format png "$FILE" --out "$TMPFILEPATH" >/dev/null
             # NOTE: this `[0]` below is inteneded to handle multi-frame images. Not a bug.
-            magick "$FILEPATH[0]" -strip -colors 240 -quality 0 -define png:compression-level=0 -define png:compression-strategy=0 "$TMPFILEPATH"
+            magick "$FILEPATH[0]" -strip -colors 240 -quality 0 -define png:compression-level=0 -define png:compression-strategy=0 "$TMPFILEPATHPNG"
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     *.drawio)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
-            drawio "$FILEPATH" --no-sandbox -x -f png -s 0.75 -o "$TMPFILEPATH" >/dev/null
+            drawio "$FILEPATH" --no-sandbox -x -f png -s 0.75 -o "$TMPFILEPATHPNG" >/dev/null
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
+        exit 0
+        ;;
+    *.mmd | *.mermaid)
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
+            mkdir -p "$TMPFILEDIR"
+            mmdc -i "$FILEPATH" -o "$TMPFILEPATHPNG" >/dev/null
+        fi
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     esac
@@ -149,30 +157,30 @@ function handle_mime() {
         exit 0
         ;;
     *pdf)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
             # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "$FILEPATH" >"$TMPFILEPATH"
-            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATH" "$FILEPATH" 1
+            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATHPNG" "$FILEPATH" 1
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     audio/*)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
-            ffmpeg -i "$FILEPATH" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATH"
+            ffmpeg -i "$FILEPATH" -filter_complex "showwavespic=s=640x480" -frames:v 1 "$TMPFILEPATHPNG"
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     video/*)
-        if [ ! -s "$TMPFILEPATH" ]; then
+        if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
             # sudo apt install -y ffmpeg
             # ffmpeg -i "$FILEPATH" -vf "thumbnail" -frames:v 1 "$TMPFILEPATH"
-            ffmpeg -ss 00:00:00 -i "$FILEPATH" -frames:v 1 "$TMPFILEPATH"
+            ffmpeg -ss 00:00:00 -i "$FILEPATH" -frames:v 1 "$TMPFILEPATHPNG"
         fi
-        image_previewer "$TMPFILEPATH"
+        image_previewer "$TMPFILEPATHPNG"
         exit 0
         ;;
     *zip | *tar | *rar | *x-xz)
