@@ -198,23 +198,27 @@ cmd yank-basename ${{
     fi
 }}
 cmd yank-basename-without-extension ${{
-    echo "$fx" |
-      xargs -r -d '\n' basename -a |
-      awk -e '{
-        for (i=length($0); i > 0; i--) {
-          if (substr($0, i, 1) == ".") {
-            if (i == 1) print $0
-            else print substr($0, 0, i-1)
+    basename -- "$f" |
+        awk -e '{
+            for (i=length($0); i > 0; i--) {
+                if (substr($0, i, 1) == ".") {
+                    if (i == 1) print $0
+                    else print substr($0, 0, i-1)
 
-            break
-          }
-        }
+                    break
+                }
+            }
 
-        if (i == 0)
-          print $0
-      }' |
-      if [ -n "$fs" ]; then cat; else tr -d '\n'; fi |
-      xclip -d "${DISPLAY:-:0}" -i -selection clipboard
+            if (i == 0)
+                print $0
+        }' |
+        if [ "$(uname)" = 'Darwin' ]; then
+            tr -d '\n' | pbcopy
+        elif [ -n "${WAYLAND_DISPLAY-}" ]; then
+            wl-copy -n
+        else
+            head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
+        fi
 }}
 # map y
 # map yy :copy
