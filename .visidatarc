@@ -92,10 +92,14 @@ Sheet.addCommand(
     'sheet.cursorRowIndex = sheet.topRowIndex',
     'go to top visible row',
 )
-
 Sheet.addCommand(
     'L',
     'vim-screen-bottom',
     'sheet.cursorRowIndex = sheet.bottomRowIndex',
     'go to bottom visible row',
 )
+
+Sheet.unbindkey('$')
+Sheet.bindkey('z$', 'type-currency')
+Sheet.bindkey('0', 'go-leftmost')
+Sheet.bindkey('$', 'go-rightmost')
