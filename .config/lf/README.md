@@ -9,7 +9,7 @@
 | sixel2png          | sixel                |
 | python             | pkl/json             |
 | unar (lsar)        | tar/zip              |
-| mupdf (mutool)     | pdf                  |
+| poppler (pdftoppm) | pdf                  |
 | ffmpeg             | video/audio          |
 | libreoffice        | doc(x)/ppt(x)/xls(x) |
 | imagemagick        | heic                 |

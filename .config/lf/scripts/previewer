@@ -26,6 +26,7 @@ TMPFILEDIR=/tmp/lf-img"$(dirname "$FILEPATH")"
 TMPFILENAMEWITHOUTEXT="$(sha256sum "$FILEPATH" | awk '{print $1}')"
 TMPFILENAMEPNG="$TMPFILENAMEWITHOUTEXT".png
 TMPFILEPATHPNG="${TMPFILEDIR}/${TMPFILENAMEPNG}"
+TMPFILEPATHPNGROOT="${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}"
 # mkdir -p "$TMPFILEDIR"
 
 function image_previewer() {
@@ -110,8 +111,7 @@ function handle_extension() {
             # Ref: https://help.libreoffice.org/latest/en-US/text/shared/guide/pdf_params.html
             "$office_cmd" --headless --convert-to "pdf:${tmp}:{\"PageRange\":{\"type\":\"string\",\"value\":\"1\"},\"Quality\":{\"type\":\"long\",\"value\":\"25\"},\"MaxImageResolution\":{\"type\":\"long\",\"value\":\"75\"}}" --outdir "$TMPFILEDIR" "$FILEPATH" >/dev/null
             mv "${TMPFILEDIR}/${FILENAMEWITHOUTEXT}".pdf "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf"
-            # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" >"$TMPFILEPATH"
-            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATHPNG" "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" 1
+            pdftoppm -f 1 -l 1 -singlefile -png -r 72 -aa no -aaVector no "${TMPFILEDIR}/${TMPFILENAMEWITHOUTEXT}.pdf" "$TMPFILEPATHPNGROOT"
         fi
         image_previewer "$TMPFILEPATHPNG"
         exit 0
@@ -159,8 +159,7 @@ function handle_mime() {
     *pdf)
         if [ ! -s "$TMPFILEPATHPNG" ]; then
             mkdir -p "$TMPFILEDIR"
-            # pdftoppm -f 1 -l 1 -png -r 72 -aa no -aaVector no "$FILEPATH" >"$TMPFILEPATH"
-            mutool draw -F png -r 72 -A 0 -o "$TMPFILEPATHPNG" "$FILEPATH" 1
+            pdftoppm -f 1 -l 1 -singlefile -png -r 72 -aa no -aaVector no "$FILEPATH" "$TMPFILEPATHPNGROOT"
         fi
         image_previewer "$TMPFILEPATHPNG"
         exit 0
