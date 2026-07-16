@@ -23,7 +23,7 @@ cmd open &{{
             chrome "$f" >/dev/null 2>&1
             exit 0
             ;;
-        *.csv)
+        *.csv | *.xls | *.xlsx)
             lf -remote "send $id \$vd \"\$f\" 2>/dev/null"
             exit 0
             ;;
