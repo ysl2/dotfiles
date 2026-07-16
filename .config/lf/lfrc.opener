@@ -39,6 +39,10 @@ cmd open &{{
             exit 0
             ;;
         application/pdf)
+            if [ "$(uname)" = Darwin ] && [ -d /Applications/Zathura.app ]; then
+                open -a /Applications/Zathura.app "$f" >/dev/null 2>&1 && exit 0
+            fi
+
             if command -v zathura >/dev/null 2>&1; then
                 zathura "$f" >/dev/null 2>&1
             else
