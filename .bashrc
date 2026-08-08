@@ -295,6 +295,7 @@ export XDG_CONFIG_HOME=~/.config
 # pip install hf_transfer
 export HF_HUB_ENABLE_HF_TRANSFER=1
 export HF_HUB_DOWNLOAD_TIMEOUT=600
+export NO_PROXY=localhost,127.0.0.1,::1
 # For Chinese mirrors:
 if [ "$MYCNMIRROR" = 1 ]; then
     # Node.js
