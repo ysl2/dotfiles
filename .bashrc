@@ -8,6 +8,10 @@
 # ===================================================
 # === Utils and some global environment variables ===
 # ===================================================
+
+# ===
+# === init variables
+# ===
 export VOCAL="${HOME}/.vocal"
 [ ! -d "$VOCAL" ] && mkdir -p "$VOCAL"
 VOCALOCK="${VOCAL}/.lock"
@@ -23,7 +27,9 @@ else
     HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 fi
 
-# Get value from localhost.
+# ===
+# === Get value from localhost.
+# ===
 [ -f ~/.bashrc.localhost.pre ] && . ~/.bashrc.localhost.pre
 export MYTMUX # For neovide to use tmux.
 # MYCONDA: str
