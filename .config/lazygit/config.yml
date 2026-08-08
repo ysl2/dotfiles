@@ -26,9 +26,11 @@ gui:
   language: en
   border: single
 git:
-  pagers:
+  diffRenderers:
     - colorArg: always
       # pager: delta --dark --paging=never
+
+      type: rawGit
   disableForcePushing: true
 keybinding:
   universal:
