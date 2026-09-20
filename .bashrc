@@ -438,7 +438,10 @@ fi
 if command -v atuin >/dev/null 2>&1; then
     if [ "$BASENAME_SHELL" = bash ]; then
         if [ ! -f ~/.bashrc.bash-preexec ]; then
-            command -v curl >/dev/null 2>&1 && curl -fsSL https://ghfast.top/https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.bashrc.bash-preexec
+            bash_preexec_prefix=
+            [ "$MYCNMIRROR" = 1 ] && bash_preexec_prefix=https://ghfast.top/
+            command -v curl >/dev/null 2>&1 && curl -fsSL "${bash_preexec_prefix}https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh" -o ~/.bashrc.bash-preexec
+            unset bash_preexec_prefix
         fi
         [ -f ~/.bashrc.bash-preexec ] && . ~/.bashrc.bash-preexec
     fi
