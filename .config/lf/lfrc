@@ -428,6 +428,11 @@ map p :paste; clear
 map <c-g> &{{
     if [ "$(uname)" = 'Darwin' ]; then
         open -a yoink $fx
+    elif [ -n "${WSL_DISTRO_NAME-}" ]; then
+        for f in $fx; do
+            wslpath -w "$f"
+        done | powershell.exe -NoProfile -Command \
+            '$p = [Console]::In.ReadToEnd() -split "\r?\n" | Where-Object { $_ }; Set-Clipboard -LiteralPath $p'
     else
         dragon -a -x $fx
     fi
