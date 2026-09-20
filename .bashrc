@@ -36,6 +36,7 @@ export MYTMUX # For neovide to use tmux.
 # MYTMUX: str
 # MYCNMIRROR: int
 # MYWAYLAND: str. e.g, `sway --unsupported-gpu`
+# MYHTTPPROXYPORT and MYALLPROXYPORT: str. for `P ()` command.
 
 # The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
 if [ -z "$MYWAYLAND" ]; then
@@ -335,7 +336,20 @@ toconda() {
     toggle "$VOCALOCK_CONDA" onconda
 }
 P() {
-    http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890 "$@"
+    if [ "$#" -eq 0 ]; then
+        echo "Usage: P command [args ...]" >&2
+        return 2
+    fi
+
+    if [ -z "$MYHTTPPROXYPORT" ] || [ -z "$MYALLPROXYPORT" ]; then
+        echo "Error: MYHTTPPROXYPORT and MYALLPROXYPORT must be set." >&2
+        return 1
+    fi
+
+    HTTP_PROXY="http://127.0.0.1:$MYHTTPPROXYPORT" \
+        HTTPS_PROXY="http://127.0.0.1:$MYHTTPPROXYPORT" \
+        ALL_PROXY="socks5h://127.0.0.1:$MYALLPROXYPORT" \
+        "$@"
 }
 
 # ===
