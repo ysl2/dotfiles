@@ -1,0 +1,19 @@
+#!/bin/sh
+
+missing() {
+    printf 'copy-to-clipboard: command not found: %s\n' "$1" >&2
+    exit 127
+}
+
+if [ "$(uname -s)" = 'Darwin' ]; then
+    set -- pbcopy
+elif [ -n "${WSL_DISTRO_NAME-}" ]; then
+    set -- powershell.exe -NoProfile -Command '[Console]::InputEncoding = [System.Text.Encoding]::UTF8; Set-Clipboard -Value ([Console]::In.ReadToEnd())'
+elif [ -n "${WAYLAND_DISPLAY-}" ] && command -v wl-copy >/dev/null 2>&1; then
+    set -- wl-copy
+else
+    set -- xclip -d "${DISPLAY:-:0}" -i -selection clipboard
+fi
+
+command -v "$1" >/dev/null 2>&1 || missing "$1"
+exec "$@"

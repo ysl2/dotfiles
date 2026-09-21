@@ -212,62 +212,19 @@ cmd link %{{
 map P :link
 
 cmd yank-dirname ${{
-    if [ "$(uname)" = 'Darwin' ]; then
-        dirname -- "$f" | tr -d '\n' | pbcopy
-    elif [ -n "${WSL_DISTRO_NAME-}" ]; then
-        dirname -- "$f" | tr -d '\n' | clip.exe
-    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
-        dirname -- "$f" | wl-copy
-    else
-        dirname -- "$f" | head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
-    fi
+    printf '%s' "$(dirname -- "$f")" | "$HOME/.config/lf/scripts/copy-to-clipboard"
 }}
 cmd yank-path ${{
-    if [ "$(uname)" = 'Darwin' ]; then
-        printf '%s' "$f" | pbcopy
-    elif [ -n "${WSL_DISTRO_NAME-}" ]; then
-        printf '%s' "$f" | clip.exe
-    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
-        printf '%s' "$f" | wl-copy
-    else
-        printf '%s' "$f" | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
-    fi
+    printf '%s' "$f" | "$HOME/.config/lf/scripts/copy-to-clipboard"
 }}
 cmd yank-basename ${{
-    if [ "$(uname)" = 'Darwin' ]; then
-        basename -- "$f" | tr -d '\n' | pbcopy
-    elif [ -n "${WSL_DISTRO_NAME-}" ]; then
-        basename -- "$f" | tr -d '\n' | clip.exe
-    elif [ -n "${WAYLAND_DISPLAY-}" ]; then
-        basename -- "$f" | wl-copy -n
-    else
-        basename -- "$f" | head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
-    fi
+    printf '%s' "$(basename -- "$f")" | "$HOME/.config/lf/scripts/copy-to-clipboard"
 }}
 cmd yank-basename-without-extension ${{
-    basename -- "$f" |
-        awk -e '{
-            for (i=length($0); i > 0; i--) {
-                if (substr($0, i, 1) == ".") {
-                    if (i == 1) print $0
-                    else print substr($0, 0, i-1)
-
-                    break
-                }
-            }
-
-            if (i == 0)
-                print $0
-        }' |
-        if [ "$(uname)" = 'Darwin' ]; then
-            tr -d '\n' | pbcopy
-        elif [ -n "${WSL_DISTRO_NAME-}" ]; then
-            tr -d '\n' | clip.exe
-        elif [ -n "${WAYLAND_DISPLAY-}" ]; then
-            wl-copy -n
-        else
-            head -c-1 | xclip -d "${DISPLAY:-:0}" -i -selection clipboard
-        fi
+    name=$(basename -- "$f")
+    stem=${name%.*}
+    [ -n "$stem" ] && name=$stem
+    printf '%s' "$name" | "$HOME/.config/lf/scripts/copy-to-clipboard"
 }}
 # map y
 # map yy :copy
