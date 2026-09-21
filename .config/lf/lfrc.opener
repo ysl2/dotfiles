@@ -65,7 +65,11 @@ cmd open &{{
             exit 0
             ;;
         *)
-            $OPENER "$f" >/dev/null 2>&1
+            if [ -n "${WSL_DISTRO_NAME-}" ]; then
+                cmd.exe /c start "" "$(wslpath -w "$f")" >/dev/null 2>&1
+            else
+                $OPENER "$f" >/dev/null 2>&1
+            fi
             exit 0
             ;;
     esac
