@@ -36,7 +36,9 @@ export MYTMUX # For neovide to use tmux.
 # MYTMUX: str
 # MYCNMIRROR: int
 # MYWAYLAND: str. e.g, `sway --unsupported-gpu`
-# MYHTTPPROXYPORT and MYALLPROXYPORT: str. for `P ()` command.
+# MYHTTPPROXYPORT: str. for `P ()` command.
+# MYALLPROXYPORT: same as above.
+# HOMEBREW_PREFIX: str. optional for non-sudo install. e.g, `$HOME/.linuxbrew`
 
 # The fcitx things must be put here (before startx or wayland), because it should be sourced when system booting.
 if [ -z "$MYWAYLAND" ]; then
