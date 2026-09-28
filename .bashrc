@@ -109,6 +109,7 @@ addToPATH "${HOME}/.local/bin"
 # ===
 # addToPATH /var/lib/flatpak/exports/bin  # Not needed.
 # addToPATH "$HOME"/.local/kitty.app/bin
+addToPATH "${HOMEBREW_PREFIX}/opt/rustup/bin"
 addToPATH "${HOME}/.cargo/bin"
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
