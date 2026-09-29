@@ -113,11 +113,11 @@ addToPATH "${HOMEBREW_PREFIX}/opt/rustup/bin"
 addToPATH "${HOME}/.cargo/bin"
 # In case if the fzf is manually installed.
 # addToPATH "$HOME"/.fzf/bin
-if command -v go >/dev/null 2>&1; then
-    _go="$(command -v go)"
-    GOPATH="${_go%/*/*}/gopath"
-    addToPATH "${GOPATH}/bin"
-fi
+# if command -v go >/dev/null 2>&1; then
+#     _go="$(command -v go)"
+#     GOPATH="${_go%/*/*}/gopath"
+#     addToPATH "${GOPATH}/bin"
+# fi
 if [ -d "$HOMEBREW_PREFIX" ] && [ "$UNAME" = Darwin ]; then
     # brew install gnu-sed
     addToPATH "${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin"
@@ -270,7 +270,7 @@ export CONDA_CHANGEPS1=no
 export FZF_DEFAULT_COMMAND='rg --files --hidden --no-ignore -g !.git'
 export FZF_COMPLETION_TRIGGER=\\ # Press single `\<Tab>` to trigger. Double backslash for escaping.
 export GO111MODULE=on
-export GOPATH
+# export GOPATH
 # export TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 export TESSDATA_PREFIX="${VOCAL}/tessdata_best"
 if [ -d "$HOMEBREW_PREFIX" ]; then # To simulate the brew shellenv command.
