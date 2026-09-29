@@ -346,14 +346,14 @@ P() {
         return 2
     fi
 
-    if [ -z "$MYHTTPPROXYPORT" ] || [ -z "$MYALLPROXYPORT" ]; then
-        echo "Error: MYHTTPPROXYPORT and MYALLPROXYPORT must be set." >&2
+    if [ -z "${MYHTTPPROXYPORT:-}" ]; then
+        echo "Error: MYHTTPPROXYPORT must be set." >&2
         return 1
     fi
 
     HTTP_PROXY="http://127.0.0.1:$MYHTTPPROXYPORT" \
         HTTPS_PROXY="http://127.0.0.1:$MYHTTPPROXYPORT" \
-        ALL_PROXY="socks5h://127.0.0.1:$MYALLPROXYPORT" \
+        ALL_PROXY="${MYALLPROXYPORT:+socks5h://127.0.0.1:${MYALLPROXYPORT}}" \
         "$@"
 }
 
