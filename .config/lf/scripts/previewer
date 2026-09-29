@@ -84,7 +84,7 @@ function handle_extension() {
         exit 0
         ;;
     *.pkl)
-        python -c "import pickle; from pprint import pprint; p = pickle.load(open('$FILEPATH', 'rb')); pprint(p)"
+        python3 -c "import pickle; from pprint import pprint; p = pickle.load(open('$FILEPATH', 'rb')); pprint(p)"
         exit 0
         ;;
     *.doc | *.docx | *.ppt | *.pptx | *.xls | *.xlsx)
@@ -117,7 +117,7 @@ function handle_extension() {
         exit 0
         ;;
     *.json | *.tgn)
-        python -m json.tool "$FILEPATH"
+        python3 -m json.tool "$FILEPATH"
         exit 0
         ;;
     *.HEIC | *.xcf)
