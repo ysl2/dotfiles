@@ -372,7 +372,7 @@ ranger='source ranger ranger'
 alias ranger="$ranger"
 alias ra="$ranger"
 alias py=python3
-alias ipy=ipython
+alias ipy=ipython3
 # Ref: https://github.com/gokcehan/lf/blob/master/etc/lfcd.sh
 lf() {
     # `command` is needed in case `lfcd` is aliased to `lf`
