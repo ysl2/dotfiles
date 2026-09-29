@@ -297,7 +297,9 @@ export XDG_CONFIG_HOME=~/.config
 # NOTE: Speed up Huggingface model downloading
 # Ref: https://www.reddit.com/r/LocalLLaMA/comments/1ise5ly/speed_up_downloading_hugging_face_models_by_100x/
 # pip install hf_transfer
-export HF_HUB_ENABLE_HF_TRANSFER=1
+# NOTE: Outdated. No need anymore. Use `HF_XET_HIGH_PERFORMANCE` instead.
+# export HF_HUB_ENABLE_HF_TRANSFER=1
+export HF_XET_HIGH_PERFORMANCE=1
 export HF_HUB_DOWNLOAD_TIMEOUT=600
 export NO_PROXY=localhost,127.0.0.1,::1
 # For Chinese mirrors:
