@@ -252,7 +252,8 @@ onconda() {
 # ===
 # === Environment variables
 # ===
-export LD_LIBRARY_PATH="${VOCAL}/cuda/lib64:${LD_LIBRARY_PATH}"
+export CUDA_HOME="${VOCAL}/cuda"
+export LD_LIBRARY_PATH="${CUDA_HOME}/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 # Ref: https://www.reddit.com/r/zsh/comments/er6fok/getting_sign_in_output
 export PROMPT_EOL_MARK=
 if command -v nvim >/dev/null 2>&1; then
